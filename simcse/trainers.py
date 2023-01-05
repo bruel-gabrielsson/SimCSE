@@ -329,7 +329,7 @@ class CLTrainer(Trainer):
             model = torch.nn.DataParallel(model)
 
         # Distributed training (should be after apex fp16 initialization)
-        if self.sharded_dpp:
+        if False: # self.sharded_dpp:
             model = ShardedDDP(model, self.optimizer)
         elif self.args.local_rank != -1:
             model = torch.nn.parallel.DistributedDataParallel(
