@@ -164,7 +164,7 @@ def cl_forward(cls,
         if cls.config.transform_layer == 13 and cls.training: # this is one more than layers (OBS HACK!)
             #print("tt") # [64, 2, 768]
             pooler_output_org_size = pooler_output.size()
-            pooler_output = pooler_output.view((-1, pooler_output_org_size(-1)))
+            pooler_output = pooler_output.view((-1, pooler_output_org_size[-1]))
 
             mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device)
             mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = 1.0
