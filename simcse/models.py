@@ -168,6 +168,8 @@ def cl_forward(cls,
             #print(pooler_output.shape) # torch.Size([128, 768])
             mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
             mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
+
+            print(big_mask[:4])
             
             big_mask = torch.zeros(pooler_output.size(), device=pooler_output.device)
             big_mask[mask_this_transform] = 1.0
