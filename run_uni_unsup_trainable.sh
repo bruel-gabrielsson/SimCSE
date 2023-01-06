@@ -4,16 +4,17 @@
 # If you want to train it with multiple GPU cards, see "run_sup_example.sh"
 # about how to use PyTorch's distributed data parallel.
 
-export CUDA_VISIBLE_DEVICES="0"
+export CUDA_VISIBLE_DEVICES="1"
 
 declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11)
 for layer in "${layers[@]}"
 do 
     python train.py \
         --transform_layer $layer \
+        --transform_trainable \
         --model_name_or_path bert-base-uncased \
         --train_file data/wiki1m_for_simcse.txt \
-        --output_dir "/mnt2/brg/simcse-data/S_L${layer}" \
+        --output_dir "/mnt2/brg/simcse-data/ST_L${layer}" \
         --num_train_epochs 1 \
         --per_device_train_batch_size 64 \
         --learning_rate 3e-5 \
