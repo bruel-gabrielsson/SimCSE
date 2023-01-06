@@ -6,7 +6,7 @@
 
 export CUDA_VISIBLE_DEVICES="1"
 
-declare -a layers=(12) # 0 1 2 3 4 5 6 7 8 9 10 11)
+declare -a layers=(13) # 0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 for layer in "${layers[@]}"
 do 
     python train.py \

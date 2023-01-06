@@ -108,6 +108,7 @@ def cl_forward(cls,
     return_dict=None,
     mlm_input_ids=None,
     mlm_labels=None,
+    #config=None,
 ):
     return_dict = return_dict if return_dict is not None else cls.config.use_return_dict
     ori_input_ids = input_ids
@@ -159,6 +160,14 @@ def cl_forward(cls,
     # (same as BERT's original implementation) over the representation.
     if cls.pooler_type == "cls":
         pooler_output = cls.mlp(pooler_output)
+
+        if cls.config.transform_layer == 13 and cls.training: # this is one more than layers (OBS HACK!)
+            print("tt")
+            mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
+            mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
+            pooler_output[mask_this_transform] = torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform])
+            if not cls.config.transform_trainable:
+                pooler_output[mask_this_transform] = pooler_output[mask_this_transform].detach()
 
     # Separate representation
     z1, z2 = pooler_output[:,0], pooler_output[:,1]
@@ -242,6 +251,7 @@ def sentemb_forward(
     output_attentions=None,
     output_hidden_states=None,
     return_dict=None,
+    #config=None,
 ):
 
     return_dict = return_dict if return_dict is not None else cls.config.use_return_dict
@@ -262,6 +272,14 @@ def sentemb_forward(
     if cls.pooler_type == "cls" and not cls.model_args.mlp_only_train:
         pooler_output = cls.mlp(pooler_output)
 
+        if cls.config.transform_layer == 13 and cls.training: # this is one more than layers (OBS HACK!)
+            print("ss")
+            mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
+            mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
+            pooler_output[mask_this_transform] = torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform])
+            if not cls.config.transform_trainable:
+                pooler_output[mask_this_transform] = pooler_output[mask_this_transform].detach()
+
     if not return_dict:
         return (outputs[0], pooler_output) + outputs[2:]
 
@@ -279,6 +297,9 @@ class BertForCL(BertPreTrainedModel):
         super().__init__(config)
         self.model_args = model_kargs["model_args"]
         self.bert = BertModel(config, add_pooling_layer=False)
+
+        # Rickard
+        self.config = config
 
         if self.model_args.do_mlm:
             self.lm_head = BertLMPredictionHead(config)
@@ -312,6 +333,7 @@ class BertForCL(BertPreTrainedModel):
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
+                #config=self.config,
             )
         else:
             return cl_forward(self, self.bert,
@@ -327,6 +349,7 @@ class BertForCL(BertPreTrainedModel):
                 return_dict=return_dict,
                 mlm_input_ids=mlm_input_ids,
                 mlm_labels=mlm_labels,
+                #config=self.config,
             )
 
 
