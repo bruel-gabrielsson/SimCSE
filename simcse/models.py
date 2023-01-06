@@ -169,14 +169,13 @@ def cl_forward(cls,
             mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
             mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
 
-            print(big_mask[:4])
+           
             
             big_mask = torch.zeros(pooler_output.size(), device=pooler_output.device)
             big_mask[mask_this_transform] = 1.0
-            # _tensor = torch.zeros(pooler_output.size(), device=pooler_output.device)
-            # _tensor -= pooler_output.detach()
-            # _tensor[mask_this_transform] =  
-            #pooler_output[mask_this_transform] += torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform]) - pooler_output[mask_this_transform]
+
+            print(big_mask[:4])
+
             pooler_output = pooler_output + (torch.nn.Dropout(p=0.5, inplace=False)(pooler_output) - pooler_output) * big_mask
             if not cls.config.transform_trainable:
                 pooler_output[mask_this_transform] = pooler_output[mask_this_transform].detach()
