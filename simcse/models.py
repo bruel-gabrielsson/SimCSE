@@ -162,10 +162,10 @@ def cl_forward(cls,
         pooler_output = cls.mlp(pooler_output)
 
         if cls.config.transform_layer == 13 and cls.training: # this is one more than layers (OBS HACK!)
-            print("tt")
+            #print("tt") # [64, 2, 768]
             mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
             mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
-            pooler_output[mask_this_transform] = torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform])
+            pooler_output[mask_this_transform] += torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform]) - pooler_output[mask_this_transform]
             if not cls.config.transform_trainable:
                 pooler_output[mask_this_transform] = pooler_output[mask_this_transform].detach()
 
@@ -273,7 +273,7 @@ def sentemb_forward(
         pooler_output = cls.mlp(pooler_output)
 
         if cls.config.transform_layer == 13 and cls.training: # this is one more than layers (OBS HACK!)
-            print("ss")
+            #print("ss")
             mask_this_transform = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
             mask_this_transform[torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=0.5] = True
             pooler_output[mask_this_transform] = torch.nn.Dropout(p=0.5, inplace=False)(pooler_output[mask_this_transform])
