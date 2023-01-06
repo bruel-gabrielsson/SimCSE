@@ -8,7 +8,7 @@ python train.py \
     --transform_layer 4 \
     --model_name_or_path bert-base-uncased \
     --train_file data/wiki1m_for_simcse.txt \
-    --output_dir result/my-unsup-simcse-bert-base-uncased \
+    --output_dir /mnt2/brg/simcse-data/droplayer4 \
     --num_train_epochs 1 \
     --per_device_train_batch_size 64 \
     --learning_rate 3e-5 \

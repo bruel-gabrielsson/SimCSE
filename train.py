@@ -131,6 +131,12 @@ class ModelArguments:
             "help": "transform_layer"
         }
     )
+    transform_trainable: bool = field(
+        default=False,
+        metadata={
+            "help": "transform_trainable."
+        }
+    )
 
 
 @dataclass
@@ -358,6 +364,7 @@ def main():
 
     # Rickard
     config.transform_layer = model_args.transform_layer
+    config.transform_trainable = model_args.transform_trainable
 
     if model_args.model_name_or_path:
         if 'roberta' in model_args.model_name_or_path:
