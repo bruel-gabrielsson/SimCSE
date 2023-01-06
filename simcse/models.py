@@ -174,7 +174,7 @@ def cl_forward(cls,
             big_mask = torch.zeros(pooler_output.size(), device=pooler_output.device)
             big_mask[mask_this_transform] = 1.0
 
-            print(big_mask[:4])
+            #print(big_mask[:4])
 
             pooler_output = pooler_output + (torch.nn.Dropout(p=0.5, inplace=False)(pooler_output) - pooler_output) * big_mask
             if not cls.config.transform_trainable:
