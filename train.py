@@ -124,6 +124,14 @@ class ModelArguments:
         }
     )
 
+    # Rickard
+    transform_layer: int = field(
+        default=-3,
+        metadata={
+            "help": "transform_layer"
+        }
+    )
+
 
 @dataclass
 class DataTrainingArguments:
@@ -347,6 +355,9 @@ def main():
             "You are instantiating a new tokenizer from scratch. This is not supported by this script."
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
+
+    # Rickard
+    config.transform_layer = model_args.transform_layer
 
     if model_args.model_name_or_path:
         if 'roberta' in model_args.model_name_or_path:
