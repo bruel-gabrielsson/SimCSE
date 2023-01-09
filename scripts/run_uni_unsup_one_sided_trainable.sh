@@ -4,7 +4,7 @@
 # If you want to train it with multiple GPU cards, see "run_sup_example.sh"
 # about how to use PyTorch's distributed data parallel.
 
-export CUDA_VISIBLE_DEVICES="0"
+export CUDA_VISIBLE_DEVICES="1"
 
 declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 for layer in "${layers[@]}"
