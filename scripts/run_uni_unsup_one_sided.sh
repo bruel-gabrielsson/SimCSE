@@ -15,7 +15,7 @@ do
         --transform_one_sided \
         --model_name_or_path bert-base-uncased \
         --train_file data/wiki1m_for_simcse.txt \
-        --output_dir "/mnt2/brg/simcse-data/S_L${layer}" \
+        --output_dir "/mnt2/brg/simcse-data/SO_L${layer}" \
         --num_train_epochs 1 \
         --per_device_train_batch_size 64 \
         --learning_rate 3e-5 \
