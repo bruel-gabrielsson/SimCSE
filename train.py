@@ -137,6 +137,18 @@ class ModelArguments:
             "help": "transform_trainable."
         }
     )
+    transform_one_sided: bool = field(
+        default=False,
+        metadata={
+            "help": "transform_one_sided."
+        }
+    )
+    higher_transform_p: float = field(
+        default=0,
+        metadata={
+            "help": "higher_transform_p"
+        }
+    )
 
 
 @dataclass
@@ -365,6 +377,9 @@ def main():
     # Rickard
     config.transform_layer = model_args.transform_layer
     config.transform_trainable = model_args.transform_trainable
+    config.transform_one_sided = model_args.transform_one_sided
+    config.higher_transform_p = model_args.higher_transform_p
+
 
     if model_args.model_name_or_path:
         if 'roberta' in model_args.model_name_or_path:
