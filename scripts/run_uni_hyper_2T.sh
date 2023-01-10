@@ -32,7 +32,7 @@ do
             
             output_dir="/mnt2/brg/simcse-data/HYPER/S2T_L${layer}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
-            CUDA_VISIBLE_DEVICES="0" python train.py \
+            CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --transform_layer $layer \
                 --higher_transform_p 1.0 \
                 --transform_trainable \
