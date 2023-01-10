@@ -55,8 +55,9 @@ do
                 --do_eval \
                 --fp16 \
                 "$@"
-            
+            &
         done
+        wait
         wait
     done
 done
