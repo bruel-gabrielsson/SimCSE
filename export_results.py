@@ -20,7 +20,7 @@ def read_and_sort_folders(directory):
                 # Read the file line by line
                 for line in f:
                     # Check if the line contains the eval_stsb_spearman attribute
-                    if "eval_stsb_spearman" in line:
+                    if "eval_avg_sts" in line:
                         # Extract the value of eval_stsb_spearman
                         eval_stsb_spearman[subdir] = float(line.split()[-1])
                         break
