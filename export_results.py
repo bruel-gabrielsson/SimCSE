@@ -1,4 +1,5 @@
 import os
+import sys
 
 def read_and_sort_folders(directory):
     # Get a list of all subdirectories in the specified directory
@@ -24,3 +25,9 @@ def read_and_sort_folders(directory):
         else:
             # If the file does not exist, print an error message
             print(f'Error: {eval_file} does not exist.')
+            
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        read_and_sort_folders(sys.argv[1])
+    else:
+        print("Please provide a directory path as an argument")
