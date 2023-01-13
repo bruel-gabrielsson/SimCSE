@@ -9,8 +9,12 @@ def read_and_sort_folders(directory):
         try:
             last = re.findall(r'/(.*?)', x)[-1]
         except:
-            print("err")
-        return "_".join(re.findall(r'(.*?)_(.*?)_', last)[0])
+            print("err", x)
+        try:
+            last = "_".join(re.findall(r'(.*?)_(.*?)_', last)[0])
+        except:
+            print("err", x)
+        return last
 
     # Create a dictionary to store the subdirectory name and eval_stsb_spearman value
     eval_stsb_spearman = defaultdict(float)
