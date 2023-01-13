@@ -16,7 +16,7 @@
 
 declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 declare -a batch_sizes=(64 128 256 512) ####
-declare -a learning_rates=("1e-5" "3e-5" "5e-5")
+declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(2 3 4) 
 for layer in "${layers[@]}"
 do 
@@ -27,7 +27,7 @@ do
         do
             device_index=$((device_index + 1))
 
-            learning_rate=$((learning_rates[device_index]))
+            learning_rate=${learning_rates[$device_index]}
             device=$((devices[device_index]))
             
             output_dir="/mnt/brg/simcse-data/HYPER/T_E2/ST_E2_L${layer}_b${batch_size}_lr${learning_rate}"
