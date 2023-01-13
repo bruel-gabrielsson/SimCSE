@@ -27,7 +27,7 @@ do
         do
             device_index=$((device_index + 1))
 
-            learning_rate=$((learning_rates[device_index]))
+            learning_rate=${learning_rates[$device_index]}
             device=$((devices[device_index]))
             
             output_dir="/mnt2/brg/simcse-data/HYPER/REG_E2/SRE2G_L${layer}_b${batch_size}_lr${learning_rate}"
