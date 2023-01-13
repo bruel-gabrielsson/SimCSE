@@ -9,10 +9,12 @@ def read_and_sort_folders(directory):
         try:
             last = re.findall(r'/(.*?)', x)[-1]
         except:
+            last = x
             print("err", x)
         try:
             last = "_".join(re.findall(r'(.*?)_(.*?)_', last)[0])
         except:
+            last = ""
             print("err", x)
         return last
 
