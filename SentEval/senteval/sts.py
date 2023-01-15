@@ -48,7 +48,7 @@ class STSEval(object):
 
             _sent1, _sent2 = [], []
             for _i in range(len(sent1)):
-                if _i in not_empty_idx:
+                if not_empty_idx[_i]:
                     print('keep')
                     _sent1.append(sent1[_i].split())
                     _sent2.append(sent2[_i].split())
