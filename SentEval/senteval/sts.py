@@ -49,11 +49,11 @@ class STSEval(object):
             _sent1, _sent2 = [], []
             for _i in range(len(sent1)):
                 if not_empty_idx[_i]:
-                    print('keep')
+                    #print('keep')
                     _sent1.append(sent1[_i].split())
                     _sent2.append(sent2[_i].split())
                 else:
-                    print("skip")
+                    #print("skip")
             sent1,sent2 = _sent1,_sent2    
 
             # sort data by length to minimize padding in batcher
@@ -91,7 +91,7 @@ class STSEval(object):
                         sys_score = self.similarity(enc1[kk], enc2[kk])
                         sys_scores.append(sys_score)
             
-            print(sys_scores,gs_scores)
+            #print(sys_scores,gs_scores)
             all_sys_scores.extend(sys_scores)
             all_gs_scores.extend(gs_scores)
             results[dataset] = {'pearson': pearsonr(sys_scores, gs_scores),
