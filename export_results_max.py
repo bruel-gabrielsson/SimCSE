@@ -22,6 +22,7 @@ def read_and_sort_folders(directory):
     eval_stsb_spearman = defaultdict(float)
     eval_avg_sts = defaultdict(float)
     eval_avg_transfer = defaultdict(float)
+    eval_dir = defaultdict(str)
 
     # Get a list of all subdirectories in the specified directory
     subdirectories = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
@@ -48,10 +49,11 @@ def read_and_sort_folders(directory):
 
                     
                 this_prefix = regex(subdir)
-                if this_eval_stsb_spearman > eval_stsb_spearman[this_prefix]:
+                if this_eval_avg_sts > eval_avg_sts[this_prefix]:
                     eval_stsb_spearman[this_prefix] = this_eval_stsb_spearman
                     eval_avg_sts[this_prefix] = this_eval_avg_sts
                     eval_avg_transfer[this_prefix] = this_eval_avg_transfer
+                    eval_dir[this_prefix] = eval_file
         else:
             # If the file does not exist, print an error message
             print(f'Error: {eval_file} does not exist.')
@@ -61,7 +63,7 @@ def read_and_sort_folders(directory):
 
     # Print the subdirectory name and eval_stsb_spearman value
     for prefix, val in sorted_folders.items():
-        print("PREFIX: {}\n{}\n{}\n{}\n".format(prefix, eval_stsb_spearman[prefix], eval_avg_sts[prefix], eval_avg_transfer[prefix]))
+        print("PREFIX: {}\n{}\n{}\n{}\n{}\n".format(prefix, eval_stsb_spearman[prefix], eval_avg_sts[prefix], eval_avg_transfer[prefix], eval_dir[prefix]))
 
 if __name__ == '__main__':
     
