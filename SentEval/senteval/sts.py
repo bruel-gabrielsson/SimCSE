@@ -49,8 +49,8 @@ class STSEval(object):
             _sent1, _sent2 = [], []
             for _i in range(len(sent1)):
                 if _i in not_empty_idx:
-                    _sent1.append(_sent1[_i].split())
-                    _sent2.append(_sent2[_i].split())
+                    _sent1.append(sent1[_i].split())
+                    _sent2.append(sent2[_i].split())
             sent1,sent2 = _sent1,_sent2    
 
             # sort data by length to minimize padding in batcher
