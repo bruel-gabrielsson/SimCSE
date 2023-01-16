@@ -131,6 +131,12 @@ class ModelArguments:
             "help": "transform_layer"
         }
     )
+    dropout_only_layer: int = field(
+        default=-3,
+        metadata={
+            "help": "dropout_only_layer"
+        }
+    )
     transform_trainable: bool = field(
         default=False,
         metadata={
@@ -394,6 +400,7 @@ def main():
     config.higher_transform_p = model_args.higher_transform_p
     config.attention_probs_dropout_prob = model_args.attention_probs_dropout_prob
     config.hidden_dropout_prob = model_args.hidden_dropout_prob
+    config.dropout_only_layer = model_args.dropout_only_layer
     
     print("config", config)
 
