@@ -149,6 +149,19 @@ class ModelArguments:
             "help": "higher_transform_p"
         }
     )
+    attention_probs_dropout_prob: float = field(
+        default=0.1,
+        metadata={
+            "help": "attention_probs_dropout_prob"
+        }
+    )
+    hidden_dropout_prob: float = field(
+        default=0.1,
+        metadata={
+            "help": "hidden_dropout_prob"
+        }
+    )
+
 
 
 @dataclass
@@ -379,7 +392,10 @@ def main():
     config.transform_trainable = model_args.transform_trainable
     config.transform_one_sided = model_args.transform_one_sided
     config.higher_transform_p = model_args.higher_transform_p
-
+    config.attention_probs_dropout_prob = model_args.attention_probs_dropout_prob
+    config.hidden_dropout_prob = model_args.hidden_dropout_prob
+    
+    print("config", config)
 
     if model_args.model_name_or_path:
         if 'roberta' in model_args.model_name_or_path:
