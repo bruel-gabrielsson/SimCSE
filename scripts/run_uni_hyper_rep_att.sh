@@ -30,7 +30,7 @@ do
             learning_rate=${learning_rates[$device_index]}
             device=$((devices[device_index]))
             
-            output_dir="/mnt2/brg/simcse-data/HYPER/ATT/ATT_L${layer}_b${batch_size}_lr${learning_rate}"
+            output_dir="/mnt/brg/simcse-data/HYPER/ATT/ATT_L${layer}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --attention_probs_dropout_prob 0.1 \
