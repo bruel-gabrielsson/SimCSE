@@ -581,4 +581,7 @@ class CLTrainer(Trainer):
         # add remaining tr_loss
         self._total_loss_scalar += tr_loss.item()
 
+        if self.state.global_step == 0:
+            self.state.global_step = 1
+
         return TrainOutput(self.state.global_step, self._total_loss_scalar / self.state.global_step, metrics)
