@@ -54,6 +54,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
+    model.eval() # RICKARD: Why wasn't this here before?
     
     # Set up the tasks
     if args.task_set == 'sts':
