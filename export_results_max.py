@@ -59,7 +59,7 @@ def read_and_sort_folders(directory):
             print(f'Error: {eval_file} does not exist.')
 
     # Sort the dictionary based on the eval_stsb_spearman value in descending order
-    sorted_folders = dict(sorted(eval_stsb_spearman.items(), key=lambda item: item[1], reverse=True))
+    sorted_folders = dict(sorted(eval_avg_sts.items(), key=lambda item: item[1], reverse=True))
 
     # Print the subdirectory name and eval_stsb_spearman value
     for prefix, val in sorted_folders.items():
