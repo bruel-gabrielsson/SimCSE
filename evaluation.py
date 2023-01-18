@@ -51,6 +51,7 @@ def main():
     
     # Load transformers' model checkpoint
     model = AutoModel.from_pretrained(args.model_name_or_path)
+    model.config.dropout_only_layer = -3
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
