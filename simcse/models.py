@@ -179,7 +179,7 @@ def cl_forward(cls,
 
             #print(big_mask[:4])
 
-            pooler_output = pooler_output + (torch.nn.Dropout(p=0.5, inplace=False)(pooler_output) - pooler_output) * big_mask
+            pooler_output = pooler_output + (torch.nn.Dropout(p=cls.config.higher_dropout_p, inplace=False)(pooler_output) - pooler_output) * big_mask
             if not cls.config.transform_trainable:
                 pooler_output[mask_this_transform] = pooler_output[mask_this_transform].detach()
 

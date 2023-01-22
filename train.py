@@ -155,6 +155,12 @@ class ModelArguments:
             "help": "higher_transform_p"
         }
     )
+    higher_dropout_p: float = field(
+        default=0.5,
+        metadata={
+            "help": "higher_transform_p"
+        }
+    )
     attention_probs_dropout_prob: float = field(
         default=0.1,
         metadata={
