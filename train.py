@@ -407,6 +407,7 @@ def main():
     config.attention_probs_dropout_prob = model_args.attention_probs_dropout_prob
     config.hidden_dropout_prob = model_args.hidden_dropout_prob
     config.dropout_only_layer = model_args.dropout_only_layer
+    config.higher_dropout_p = model_args.higher_dropout_p
     
     print("config", config)
 
