@@ -12,7 +12,8 @@ def read_and_sort_folders(directory):
             last = x
             print("err", x)
         try:
-            last = "_".join(re.findall(r'(.*?)_(.*?)_(.*?)_', last)[0])
+            #last = "_".join(re.findall(r'(.*?)_(.*?)_(.*?)_', last)[0])
+            last = "_".join(re.findall(r'(.*?)_(.*?)_', last)[0])
         except:
             last = ""
             print("err", x)
@@ -49,7 +50,7 @@ def read_and_sort_folders(directory):
 
                     
                 this_prefix = regex(subdir)
-                if this_eval_avg_sts > eval_avg_sts[this_prefix]:
+                if this_eval_stsb_spearman > eval_stsb_spearman[this_prefix]:
                     eval_stsb_spearman[this_prefix] = this_eval_stsb_spearman
                     eval_avg_sts[this_prefix] = this_eval_avg_sts
                     eval_avg_transfer[this_prefix] = this_eval_avg_transfer
@@ -59,7 +60,7 @@ def read_and_sort_folders(directory):
             print(f'Error: {eval_file} does not exist.')
 
     # Sort the dictionary based on the eval_stsb_spearman value in descending order
-    sorted_folders = dict(sorted(eval_avg_sts.items(), key=lambda item: item[1], reverse=True))
+    sorted_folders = dict(sorted(eval_stsb_spearman.items(), key=lambda item: item[1], reverse=True))
 
     # Print the subdirectory name and eval_stsb_spearman value
     for prefix, val in sorted_folders.items():
