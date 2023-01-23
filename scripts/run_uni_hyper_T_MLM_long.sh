@@ -16,7 +16,7 @@
 
 #declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 
-declare -a batch_sizes=(256) ####
+declare -a batch_sizes=(128) ####
 declare -a learning_rates=(5e-5)
 declare -a layers=(7)
 declare -a devices=(0) 
