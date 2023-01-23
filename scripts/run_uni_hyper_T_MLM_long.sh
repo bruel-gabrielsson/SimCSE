@@ -33,7 +33,7 @@ do
             layer=${layers[$device_index]}
             device=$((devices[device_index]))
             
-            output_dir="/mnt/brg/simcse-data/HYPER/T_MLMLONG/TMLMLONG_L${layer}_b${batch_size}_lr${learning_rate}"
+            output_dir="/mnt2/brg/simcse-data/HYPER/T_MLMLONG/TMLMLONG_L${layer}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --transform_layer $layer \
