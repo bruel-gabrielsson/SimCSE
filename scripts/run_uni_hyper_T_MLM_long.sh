@@ -18,7 +18,7 @@
 
 declare -a batch_sizes=(128) ####
 declare -a learning_rates=(5e-5)
-declare -a layers=(7)
+declare -a layers=(7 8 9)
 declare -a devices=(0) 
 for learning_rate in "${learning_rates[@]}"
 do 
@@ -33,9 +33,9 @@ do
             layer=${layers[$device_index]}
             device=$((devices[device_index]))
             
-            output_dir="/mnt2/brg/simcse-data/HYPER/T_MLMLONG/TMLMLONG_L${layer}_b${batch_size}_lr${learning_rate}"
+            output_dir="/mnt2/brg/simcse-data/HYPER/T_MLMLONG2GPU/TMLMLONG_L${layer}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
-            CUDA_VISIBLE_DEVICES="5,6,7" python train.py \
+            CUDA_VISIBLE_DEVICES="5,6" python train.py \
                 --transform_layer $layer \
                 --higher_transform_p 0.5 \
                 --higher_dropout_p 0.5 \
