@@ -31,16 +31,14 @@ do
             learning_rate=${learning_rates[$device_index]}
             device=$((devices[device_index]))
             
-            #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
-            output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
+            output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_NE/REGNE_L${layer}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --transform_layer $layer \
                 --higher_transform_p 0.5 \
                 --higher_dropout_p 0.5 \
-                --do_mlm \
-                --attention_probs_dropout_prob 0.1 \
-                --hidden_dropout_prob 0.1 \
+                --attention_probs_dropout_prob 0.0 \
+                --hidden_dropout_prob 0.0 \
                 --model_name_or_path bert-base-uncased \
                 --train_file data/wiki1m_for_simcse.txt \
                 --output_dir $output_dir \
