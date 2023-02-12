@@ -155,6 +155,12 @@ class ModelArguments:
             "help": "higher_transform_p"
         }
     )
+    higher_transform_detach_p: float = field(
+        default=1.0,
+        metadata={
+            "help": "higher_transform_detach_p"
+        }
+    )
     higher_dropout_p: float = field(
         default=0.5,
         metadata={
@@ -408,6 +414,7 @@ def main():
     config.hidden_dropout_prob = model_args.hidden_dropout_prob
     config.dropout_only_layer = model_args.dropout_only_layer
     config.higher_dropout_p = model_args.higher_dropout_p
+    config.higher_transform_detach_p = model_args.higher_transform_detach_p
     
     print("config", config)
 
