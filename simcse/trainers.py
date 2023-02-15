@@ -147,7 +147,7 @@ class CLTrainer(Trainer):
                                             'tenacity': 3, 'epoch_size': 2}
 
         se = senteval.engine.SE(params, batcher, prepare)
-        tasks = ['STSBenchmark', 'SICKRelatedness']
+        tasks = ['STSBenchmark', 'SICKRelatedness', "STSBau"]
         if eval_senteval_transfer or self.args.eval_transfer:
             tasks = ['STSBenchmark', 'SICKRelatedness', 'MR', 'CR', 'SUBJ', 'MPQA', 'SST2', 'TREC', 'MRPC']
         self.model.eval()
@@ -155,6 +155,7 @@ class CLTrainer(Trainer):
         
         stsb_spearman = results['STSBenchmark']['dev']['spearman'][0]
         sickr_spearman = results['SICKRelatedness']['dev']['spearman'][0]
+
 
         metrics = {"eval_stsb_spearman": stsb_spearman, "eval_sickr_spearman": sickr_spearman, "eval_avg_sts": (stsb_spearman + sickr_spearman) / 2} 
         if eval_senteval_transfer or self.args.eval_transfer:
@@ -164,6 +165,11 @@ class CLTrainer(Trainer):
                 metrics['eval_{}'.format(task)] = results[task]['devacc']
             avg_transfer /= 7
             metrics['eval_avg_transfer'] = avg_transfer
+
+        if "STSBau" in tasks:
+            #print(results)
+            metrics["alignment"] = results['STSBau']['alignment']
+            metrics["uniformity"] = results['STSBau']['uniformity']
 
         self.log(metrics)
         return metrics

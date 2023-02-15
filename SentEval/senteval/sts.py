@@ -125,80 +125,6 @@ class STSEval(object):
 
         return results
 
-
-    def alignment(x,y):
-        x,y = torch.nn.functional.normalize(x, dim=1, p=2).cpu().detach(), torch.nn.functional.normalize(y, dim=1, p=2).cpu().detach()
-        return (x-y).pow(2).sum(-1).mean()
-
-
-    def uniformity(x,y):
-        x,y = torch.nn.functional.normalize(x, dim=1, p=2).cpu().detach(), torch.nn.functional.normalize(y, dim=1, p=2).cpu().detach()
-        return (torch.pdist(x,p=2).mul(-2).exp().mean().log() +
-            torch.pdist(y,p=2).mul(-2).exp().mean().log())/2
-
-
-    def run_uni_align(self, params, batcher):
-        results = {}
-        all_sys_scores = []
-        all_gs_scores = []
-
-        all_embeddings = []
-
-        for dataset in self.datasets:
-            sys_scores = []
-            input1, input2, gs_scores = self.data[dataset]
-            for ii in range(0, len(gs_scores), params.batch_size):
-                batch1 = input1[ii:ii + params.batch_size]
-                batch2 = input2[ii:ii + params.batch_size]
-
-                # we assume get_batch already throws out the faulty ones
-                if len(batch1) == len(batch2) and len(batch1) > 0:
-                    enc1 = batcher(params, batch1)
-                    enc2 = batcher(params, batch2)
-                    all_embeddings.append(enc1)
-                    all_embeddings.append(enc2)
-                    print(gs_scores.shape)
-
-
-
-                    
-
-            all_sys_scores.extend(sys_scores)
-            all_gs_scores.extend(gs_scores)
-            results[dataset] = {'pearson': pearsonr(sys_scores, gs_scores),
-                                'spearman': spearmanr(sys_scores, gs_scores),
-                                'nsamples': len(sys_scores)}
-            logging.debug('%s : pearson = %.4f, spearman = %.4f' %
-                          (dataset, results[dataset]['pearson'][0],
-                           results[dataset]['spearman'][0]))
-
-        weights = [results[dset]['nsamples'] for dset in results.keys()]
-        list_prs = np.array([results[dset]['pearson'][0] for
-                            dset in results.keys()])
-        list_spr = np.array([results[dset]['spearman'][0] for
-                            dset in results.keys()])
-
-        avg_pearson = np.average(list_prs)
-        avg_spearman = np.average(list_spr)
-        wavg_pearson = np.average(list_prs, weights=weights)
-        wavg_spearman = np.average(list_spr, weights=weights)
-        all_pearson = pearsonr(all_sys_scores, all_gs_scores)
-        all_spearman = spearmanr(all_sys_scores, all_gs_scores)
-        results['all'] = {'pearson': {'all': all_pearson[0],
-                                      'mean': avg_pearson,
-                                      'wmean': wavg_pearson},
-                          'spearman': {'all': all_spearman[0],
-                                       'mean': avg_spearman,
-                                       'wmean': wavg_spearman}}
-        logging.debug('ALL : Pearson = %.4f, \
-            Spearman = %.4f' % (all_pearson[0], all_spearman[0]))
-        logging.debug('ALL (weighted average) : Pearson = %.4f, \
-            Spearman = %.4f' % (wavg_pearson, wavg_spearman))
-        logging.debug('ALL (average) : Pearson = %.4f, \
-            Spearman = %.4f\n' % (avg_pearson, avg_spearman))
-
-        return results
-
 class STSEvalAlignUni(object):
     def loadFile(self, fpath):
         self.data = {}
@@ -232,81 +158,33 @@ class STSEvalAlignUni(object):
             self.similarity = lambda s1, s2: np.nan_to_num(cosine(np.nan_to_num(s1), np.nan_to_num(s2)))
         return prepare(params, self.samples)
 
-    def runOld(self, params, batcher):
-        results = {}
-        all_sys_scores = []
-        all_gs_scores = []
-        for dataset in self.datasets:
-            sys_scores = []
-            input1, input2, gs_scores = self.data[dataset]
-            for ii in range(0, len(gs_scores), params.batch_size):
-                batch1 = input1[ii:ii + params.batch_size]
-                batch2 = input2[ii:ii + params.batch_size]
 
-                # we assume get_batch already throws out the faulty ones
-                if len(batch1) == len(batch2) and len(batch1) > 0:
-                    enc1 = batcher(params, batch1)
-                    enc2 = batcher(params, batch2)
-
-                    for kk in range(enc2.shape[0]):
-                        sys_score = self.similarity(enc1[kk], enc2[kk])
-                        sys_scores.append(sys_score)
-            all_sys_scores.extend(sys_scores)
-            all_gs_scores.extend(gs_scores)
-            results[dataset] = {'pearson': pearsonr(sys_scores, gs_scores),
-                                'spearman': spearmanr(sys_scores, gs_scores),
-                                'nsamples': len(sys_scores)}
-            logging.debug('%s : pearson = %.4f, spearman = %.4f' %
-                          (dataset, results[dataset]['pearson'][0],
-                           results[dataset]['spearman'][0]))
-
-        weights = [results[dset]['nsamples'] for dset in results.keys()]
-        list_prs = np.array([results[dset]['pearson'][0] for
-                            dset in results.keys()])
-        list_spr = np.array([results[dset]['spearman'][0] for
-                            dset in results.keys()])
-
-        avg_pearson = np.average(list_prs)
-        avg_spearman = np.average(list_spr)
-        wavg_pearson = np.average(list_prs, weights=weights)
-        wavg_spearman = np.average(list_spr, weights=weights)
-        all_pearson = pearsonr(all_sys_scores, all_gs_scores)
-        all_spearman = spearmanr(all_sys_scores, all_gs_scores)
-        results['all'] = {'pearson': {'all': all_pearson[0],
-                                      'mean': avg_pearson,
-                                      'wmean': wavg_pearson},
-                          'spearman': {'all': all_spearman[0],
-                                       'mean': avg_spearman,
-                                       'wmean': wavg_spearman}}
-        logging.debug('ALL : Pearson = %.4f, \
-            Spearman = %.4f' % (all_pearson[0], all_spearman[0]))
-        logging.debug('ALL (weighted average) : Pearson = %.4f, \
-            Spearman = %.4f' % (wavg_pearson, wavg_spearman))
-        logging.debug('ALL (average) : Pearson = %.4f, \
-            Spearman = %.4f\n' % (avg_pearson, avg_spearman))
-
-        return results
-
-
-    def alignment(x,y):
+    def alignment(self,x,y):
         x,y = torch.nn.functional.normalize(x, dim=1, p=2).cpu().detach(), torch.nn.functional.normalize(y, dim=1, p=2).cpu().detach()
         return (x-y).pow(2).sum(-1).mean()
 
 
-    def uniformity(x,y):
-        x,y = torch.nn.functional.normalize(x, dim=1, p=2).cpu().detach(), torch.nn.functional.normalize(y, dim=1, p=2).cpu().detach()
-        return (torch.pdist(x,p=2).mul(-2).exp().mean().log() +
-            torch.pdist(y,p=2).mul(-2).exp().mean().log())/2
+    def uniformity(self,x):
+        x = torch.nn.functional.normalize(x, dim=1, p=2).cpu().detach()
+        return (torch.pdist(x,p=2).mul(-2).exp().mean().log())
 
-
-    def run_uni_align(self, params, batcher):
+    def run(self, params, batcher):
         results = {}
         all_sys_scores = []
         all_gs_scores = []
 
         all_embeddings = []
 
+        '''
+        We take STS-B pairs with a score higher than 4 as ppos and all STS-B sentences as pdata.
+        '''
+        p_data = []
+        p_pos1 = []
+        p_pos2 = []
         for dataset in self.datasets:
+            print("dataset: ",dataset)
+            
+
             sys_scores = []
             input1, input2, gs_scores = self.data[dataset]
             for ii in range(0, len(gs_scores), params.batch_size):
@@ -319,47 +197,77 @@ class STSEvalAlignUni(object):
                     enc2 = batcher(params, batch2)
                     all_embeddings.append(enc1)
                     all_embeddings.append(enc2)
-                    print(gs_scores.shape)
-
-
-
                     
+                    p_data.append(enc1)
+                    p_data.append(enc2)
 
-            all_sys_scores.extend(sys_scores)
-            all_gs_scores.extend(gs_scores)
-            results[dataset] = {'pearson': pearsonr(sys_scores, gs_scores),
-                                'spearman': spearmanr(sys_scores, gs_scores),
-                                'nsamples': len(sys_scores)}
-            logging.debug('%s : pearson = %.4f, spearman = %.4f' %
-                          (dataset, results[dataset]['pearson'][0],
-                           results[dataset]['spearman'][0]))
+                    for _i in range(len(enc1)):
+                        if gs_scores[_i] > 4:
+                            #print(enc1[_i].shape)
+                            p_pos1.append(enc1[_i].unsqueeze(0))
+                            p_pos2.append(enc2[_i].unsqueeze(0))
 
-        weights = [results[dset]['nsamples'] for dset in results.keys()]
-        list_prs = np.array([results[dset]['pearson'][0] for
-                            dset in results.keys()])
-        list_spr = np.array([results[dset]['spearman'][0] for
-                            dset in results.keys()])
 
-        avg_pearson = np.average(list_prs)
-        avg_spearman = np.average(list_spr)
-        wavg_pearson = np.average(list_prs, weights=weights)
-        wavg_spearman = np.average(list_spr, weights=weights)
-        all_pearson = pearsonr(all_sys_scores, all_gs_scores)
-        all_spearman = spearmanr(all_sys_scores, all_gs_scores)
-        results['all'] = {'pearson': {'all': all_pearson[0],
-                                      'mean': avg_pearson,
-                                      'wmean': wavg_pearson},
-                          'spearman': {'all': all_spearman[0],
-                                       'mean': avg_spearman,
-                                       'wmean': wavg_spearman}}
-        logging.debug('ALL : Pearson = %.4f, \
-            Spearman = %.4f' % (all_pearson[0], all_spearman[0]))
-        logging.debug('ALL (weighted average) : Pearson = %.4f, \
-            Spearman = %.4f' % (wavg_pearson, wavg_spearman))
-        logging.debug('ALL (average) : Pearson = %.4f, \
-            Spearman = %.4f\n' % (avg_pearson, avg_spearman))
+            
+
+            
+
+        #     all_sys_scores.extend(sys_scores)
+        #     all_gs_scores.extend(gs_scores)
+        #     results[dataset] = {'pearson': pearsonr(sys_scores, gs_scores),
+        #                         'spearman': spearmanr(sys_scores, gs_scores),
+        #                         'nsamples': len(sys_scores)}
+        #     logging.debug('%s : pearson = %.4f, spearman = %.4f' %
+        #                   (dataset, results[dataset]['pearson'][0],
+        #                    results[dataset]['spearman'][0]))
+
+        # weights = [results[dset]['nsamples'] for dset in results.keys()]
+        # list_prs = np.array([results[dset]['pearson'][0] for
+        #                     dset in results.keys()])
+        # list_spr = np.array([results[dset]['spearman'][0] for
+        #                     dset in results.keys()])
+
+        # avg_pearson = np.average(list_prs)
+        # avg_spearman = np.average(list_spr)
+        # wavg_pearson = np.average(list_prs, weights=weights)
+        # wavg_spearman = np.average(list_spr, weights=weights)
+        # all_pearson = pearsonr(all_sys_scores, all_gs_scores)
+        # all_spearman = spearmanr(all_sys_scores, all_gs_scores)
+        # results['all'] = {'pearson': {'all': all_pearson[0],
+        #                               'mean': avg_pearson,
+        #                               'wmean': wavg_pearson},
+        #                   'spearman': {'all': all_spearman[0],
+        #                                'mean': avg_spearman,
+        #                                'wmean': wavg_spearman}}
+        # logging.debug('ALL : Pearson = %.4f, \
+        #     Spearman = %.4f' % (all_pearson[0], all_spearman[0]))
+        # logging.debug('ALL (weighted average) : Pearson = %.4f, \
+        #     Spearman = %.4f' % (wavg_pearson, wavg_spearman))
+        # logging.debug('ALL (average) : Pearson = %.4f, \
+        #     Spearman = %.4f\n' % (avg_pearson, avg_spearman))
+
+        p_pos1 = torch.cat(p_pos1, dim=0)
+        p_pos2 = torch.cat(p_pos2, dim=0)
+        p_data = torch.cat(p_data, dim=0)
+        #print(p_pos1.shape, p_pos2.shape, p_data.shape)
+        # torch.Size([1889, 768]) torch.Size([1889, 768]) torch.Size([11498, 768])
+
+        alignment = self.alignment(p_pos1, p_pos2).item()
+        uniformity = self.uniformity(p_data).item()
+
+        print("Alignment: ", alignment)
+        print("Uniformity: ", uniformity)
+
+        results = {'alignment':  alignment, 'uniformity': uniformity}
 
         return results
+
+    # def uniformity_and_alignment(x,y):
+    #     lalign=(x-y).pow(2).sum(-1).mean()
+    #     lunif=(torch.pdist(x,p=2).mul(-2).exp().mean().log() +
+    #         torch.pdist(y,p=2).mul(-2).exp().mean().log())/2
+
+    #     return lunif, lalign
 
 class STSBenchmarkEvalAlignUni(STSEvalAlignUni):
     def __init__(self, task_path, seed=1111):
