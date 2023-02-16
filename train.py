@@ -111,6 +111,12 @@ class ModelArguments:
             "help": "Whether to use MLM auxiliary objective."
         }
     )
+    skip_contrastive_loss: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to skip contrastive loss."
+        }
+    )
     mlm_weight: float = field(
         default=0.1,
         metadata={
@@ -415,6 +421,7 @@ def main():
     config.dropout_only_layer = model_args.dropout_only_layer
     config.higher_dropout_p = model_args.higher_dropout_p
     config.higher_transform_detach_p = model_args.higher_transform_detach_p
+    config.skip_contrastive_loss = model_args.skip_contrastive_loss
     
     print("config", config)
 
