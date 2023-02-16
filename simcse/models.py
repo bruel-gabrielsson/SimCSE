@@ -240,7 +240,11 @@ def cl_forward(cls,
         ).to(cls.device)
         cos_sim = cos_sim + weights
 
+    
     loss = loss_fct(cos_sim, labels)
+    if cls.config.skip_contrastive_loss:
+        #print("skipping contrastive loss")
+        loss = 0.0
 
     # Calculate loss for MLM
     if mlm_outputs is not None and mlm_labels is not None:
