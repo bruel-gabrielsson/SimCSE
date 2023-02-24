@@ -15,11 +15,11 @@
 #export CUDA_VISIBLE_DEVICES="5"
 
 #declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
-declare -a layers=(-1)
+declare -a rates=(0.05 0.15 0.25 0.50)
 declare -a batch_sizes=(64 128 256) # 512) ####
-declare -a learning_rates=(3e-5)
-declare -a devices=(1) 
-for layer in "${layers[@]}"
+declare -a learning_rates=(1e=5 3e-5 5e-5)
+declare -a devices=(0 1 2) 
+for rate in "${rates[@]}"
 do 
     for batch_size in "${batch_sizes[@]}"
     do 
@@ -32,15 +32,14 @@ do
             device=$((devices[device_index]))
             
             #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
-            output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/MLM_only/MLMonly_b${batch_size}_lr${learning_rate}"
+            output_dir="/mnt2/brg/simcse-data/HYPER/simcse-data/HYPER/REP_MLM_r${rate}/MLMREP_r${rate}_b${batch_size}_lr${learning_rate}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --higher_transform_p 0.0 \
                 --higher_dropout_p 0.0 \
                 --do_mlm \
-                --skip_contrastive_loss \
-                --attention_probs_dropout_prob 0.1 \
-                --hidden_dropout_prob 0.1 \
+                --attention_probs_dropout_prob $rate \
+                --hidden_dropout_prob $rate \
                 --model_name_or_path bert-base-uncased \
                 --train_file data/wiki1m_for_simcse.txt \
                 --output_dir $output_dir \

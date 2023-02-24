@@ -111,12 +111,7 @@ class ModelArguments:
             "help": "Whether to use MLM auxiliary objective."
         }
     )
-    skip_contrastive_loss: bool = field(
-        default=False,
-        metadata={
-            "help": "Whether to skip contrastive loss."
-        }
-    )
+    
     mlm_weight: float = field(
         default=0.1,
         metadata={
@@ -137,6 +132,13 @@ class ModelArguments:
             "help": "transform_layer"
         }
     )
+    skip_contrastive_loss: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to skip contrastive loss."
+        }
+    )
+    
     dropout_only_layer: int = field(
         default=-3,
         metadata={
@@ -239,6 +241,8 @@ class DataTrainingArguments:
         metadata={"help": "Ratio of tokens to mask for MLM (only effective if --do_mlm)"}
     )
 
+    
+
     def __post_init__(self):
         if self.dataset_name is None and self.train_file is None and self.validation_file is None:
             raise ValueError("Need either a dataset name or a training/validation file.")
@@ -257,6 +261,14 @@ class OurTrainingArguments(TrainingArguments):
     eval_transfer: bool = field(
         default=False,
         metadata={"help": "Evaluate transfer task dev sets (in validation)."}
+    )
+
+    # Rickard
+    eval_bau: bool = field(
+        default=False,
+        metadata={
+            "help": "alignment and uniformity."
+        }
     )
 
     @cached_property
