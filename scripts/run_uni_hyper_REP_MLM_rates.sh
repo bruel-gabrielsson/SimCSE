@@ -58,7 +58,8 @@ do
                 --do_train \
                 --do_eval \
                 --fp16 \
-                "$@"
+                "$@" \
+                &
         done
         wait
         wait
