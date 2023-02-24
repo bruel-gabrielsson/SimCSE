@@ -17,7 +17,7 @@
 #declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 declare -a rates=(0.05 0.15 0.25 0.50)
 declare -a batch_sizes=(64 128 256) # 512) ####
-declare -a learning_rates=(1e=5 3e-5 5e-5)
+declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(0 1 2) 
 for rate in "${rates[@]}"
 do 
