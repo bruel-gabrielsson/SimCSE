@@ -141,6 +141,7 @@ def main():
     results = {}
 
     for task in args.tasks:
+        # Rickard: Is the batcher run once and then used for training and testing? Is there a way to distinguish training and testing in the eval? So we can run dropout in training but not testing
         se = senteval.engine.SE(params, batcher, prepare)
         result = se.eval(task)
         results[task] = result
