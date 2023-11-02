@@ -187,6 +187,7 @@ class ModelArguments:
             "help": "hidden_dropout_prob"
         }
     )
+    
 
 
 
@@ -268,6 +269,13 @@ class OurTrainingArguments(TrainingArguments):
         default=False,
         metadata={
             "help": "alignment and uniformity."
+        }
+    )
+
+    seed: int = field(
+        default=42, # this was default before from Transformers library
+        metadata={
+            "help": "seed"
         }
     )
 
@@ -364,6 +372,7 @@ def main():
     logger.info("Training/evaluation parameters %s", training_args)
 
     # Set seed before initializing model.
+    print("[!] setting seed", training_args.seed)
     set_seed(training_args.seed)
 
     # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
