@@ -13,10 +13,10 @@
 # "layer$((${LAYER}+1))" \
 
 #export CUDA_VISIBLE_DEVICES="5"
-
+#"layer$((${LAYER}+1))"
 #declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 declare -a layers=(-1)
-declare -a batch_sizes=(64 128 256 512) ####
+declare -a batch_sizes=(128 256) ####
 declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(5 6 7) 
 for layer in "${layers[@]}"
@@ -31,9 +31,9 @@ do
             learning_rate=${learning_rates[$device_index]}
             device=$((devices[device_index]))
             
-            output_dir="/mnt2/brg/simcse-data/HYPER/REPMLM/REPMLM_L${layer}_b${batch_size}_lr${learning_rate}"
-            echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
-            CUDA_VISIBLE_DEVICES="${device}" python train.py \
+	    output_dir="/mnt2/brg/simcse-data/HYPER/REPMLM/REPMLM_L${layer}_b$((2*${batch_size}))_lr${learning_rate}"
+	    echo "device ${device} batch_size $((2*${batch_size})) output_dir ${output_dir}"
+            CUDA_VISIBLE_DEVICES="6,7" python train.py \
                 --transform_layer -3 \
                 --higher_transform_p 0.0 \
                 --higher_dropout_p 0.0 \
