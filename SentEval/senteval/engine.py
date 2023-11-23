@@ -21,7 +21,7 @@ from senteval.mrpc import MRPCEval
 from senteval.sts import STS12Eval, STS13Eval, STS14Eval, STS15Eval, STS16Eval, STSBenchmarkEval, SICKRelatednessEval, STSBenchmarkFinetune
 from senteval.sst import SSTEval
 from senteval.rank import ImageCaptionRetrievalEval
-from senteval.sts import STSBenchmarkEvalAlignUni
+from senteval.sts import STSBenchmarkEvalAlignUni, STSBenchmarkFulltrain
 from senteval.probing import *
 
 class SE(object):
@@ -52,7 +52,7 @@ class SE(object):
                            'STS14', 'STS15', 'STS16',
                            'Length', 'WordContent', 'Depth', 'TopConstituents',
                            'BigramShift', 'Tense', 'SubjNumber', 'ObjNumber',
-                           'OddManOut', 'CoordinationInversion', 'SICKRelatedness-finetune', 'STSBenchmark-finetune', 'STSBenchmark-fix', "STSBau"]
+                           'OddManOut', 'CoordinationInversion', 'SICKRelatedness-finetune', 'STSBenchmark-finetune', 'STSBenchmark-fix', "STSBau", "STSBenchmark-fulltrain"]
 
     def eval(self, name):
         # evaluate on evaluation [name], either takes string or list of strings
@@ -88,6 +88,14 @@ class SE(object):
             self.evaluation = STSBenchmarkEval(tpath + '/downstream/STS/STSBenchmark-fix', seed=self.params.seed)
         elif name == 'STSBenchmark-finetune':
             self.evaluation = STSBenchmarkFinetune(tpath + '/downstream/STS/STSBenchmark', seed=self.params.seed)
+        elif name == 'STSBenchmark-fulltrain':
+            # SPECIAL FOR FULL FINETUNE
+            self.evaluation = STSBenchmarkFulltrain(tpath + '/downstream/STS/STSBenchmark', seed=self.params.seed)
+            self.params.current_task = name
+            # self.evaluation.do_prepare(self.params, self.prepare)
+            # self.results = self.evaluation.run(self.params, self.batcher)
+            print('[!] STSBenchmark-fulltrain')
+            return self.evaluation
         elif name == 'SICKRelatedness-finetune':
             self.evaluation = SICKEval(tpath + '/downstream/SICK', seed=self.params.seed)
         elif name == 'SICKEntailment':

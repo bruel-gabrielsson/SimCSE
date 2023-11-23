@@ -272,6 +272,11 @@ class OurTrainingArguments(TrainingArguments):
         }
     )
 
+    do_train_supervised: bool = field(
+        default=False,
+        metadata={"help": "Train supervised."}
+    )
+
     seed: int = field(
         default=42, # this was default before from Transformers library
         metadata={
@@ -384,6 +389,7 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
+    # Rickard: How do I use the stsb dataset here?
     data_files = {}
     if data_args.train_file is not None:
         data_files["train"] = data_args.train_file
@@ -469,7 +475,25 @@ def main():
             )
             if model_args.do_mlm:
                 pretrained_model = BertForPreTraining.from_pretrained(model_args.model_name_or_path)
+                # This lm_head is used later for a cross entropy loss of predicting the correct tokens
                 model.lm_head.load_state_dict(pretrained_model.cls.predictions.state_dict())
+
+                '''
+                class BertForSequenceClassification(BertPreTrainedModel):
+                    def __init__(self, config):
+                        super().__init__(config)
+                        self.num_labels = config.num_labels
+                        self.config = config
+
+                        self.bert = BertModel(config)
+                        classifier_dropout = (
+                            config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
+                        )
+                        self.dropout = nn.Dropout(classifier_dropout)
+                        self.classifier = nn.Linear(config.hidden_size, config.num_labels)
+
+                        self.init_weights()
+                '''
         else:
             raise NotImplementedError
     else:
@@ -492,11 +516,13 @@ def main():
         sent1_cname = column_names[1]
         sent2_cname = column_names[2]
     elif len(column_names) == 1:
-        # Unsupervised datasets
+        # !!! Unsupervised datasets !!!
         sent0_cname = column_names[0]
         sent1_cname = column_names[0]
     else:
         raise NotImplementedError
+
+    #print(column_names) # ['text']
 
     def prepare_features(examples):
         # padding = longest (default)
@@ -537,7 +563,7 @@ def main():
                 features[key] = [[sent_features[key][i], sent_features[key][i+total], sent_features[key][i+total*2]] for i in range(total)]
         else:
             for key in sent_features:
-                features[key] = [[sent_features[key][i], sent_features[key][i+total]] for i in range(total)]
+                features[key] = [[sent_features[key][i], sent_features[key][i+total]] for i in range(total)] # this creates the pairs, separated by total length?
             
         return features
 
@@ -630,6 +656,7 @@ def main():
 
     data_collator = default_data_collator if data_args.pad_to_max_length else OurDataCollatorWithPadding(tokenizer)
 
+    # Rickard: this could be different for supervised learning, but eval would not be the same head? How do they do with MLM head?
     trainer = CLTrainer(
         model=model,
         args=training_args,
@@ -646,7 +673,11 @@ def main():
             if (model_args.model_name_or_path is not None and os.path.isdir(model_args.model_name_or_path))
             else None
         )
-        train_result = trainer.train(model_path=model_path)
+        if training_args.do_train_supervised:
+            train_result = trainer.train_supervised(model_path=model_path)
+            #return train_result
+        else:
+            train_result = trainer.train(model_path=model_path)
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
         output_train_file = os.path.join(training_args.output_dir, "train_results.txt")

@@ -240,7 +240,7 @@ def cl_forward(cls,
         ).to(cls.device)
         cos_sim = cos_sim + weights
 
-    
+    # RICKARD: Loss computed
     loss = loss_fct(cos_sim, labels)
     if cls.config.skip_contrastive_loss:
         #print("skipping contrastive loss")
@@ -315,7 +315,7 @@ def sentemb_forward(
         hidden_states=outputs.hidden_states,
     )
 
-
+# Rickard: This wrapper is used
 class BertForCL(BertPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
@@ -332,6 +332,7 @@ class BertForCL(BertPreTrainedModel):
 
         cl_init(self, config)
 
+    # Rickard: Can pass sent_emb argument simply
     def forward(self,
         input_ids=None,
         attention_mask=None,

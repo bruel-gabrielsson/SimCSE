@@ -88,6 +88,7 @@ from filelock import FileLock
 
 logger = logging.get_logger(__name__)
 
+# Trainer used
 class CLTrainer(Trainer):
     
     # Rickard: testing putting it here
@@ -114,6 +115,263 @@ class CLTrainer(Trainer):
         if self.control.should_save:
             self._save_checkpoint(model, trial, metrics=metrics)
             self.control = self.callback_handler.on_save(self.args, self.state, self.control)
+
+    # Rickard: here we can train supervised?
+    def train_supervised(self, model_path: Optional[str] = None, trial: Union["optuna.Trial", Dict[str, Any]] = None):
+        # This might change the seed so needs to run first.
+        self._hp_search_setup(trial)
+
+        # Model re-init
+        if self.model_init is not None:
+            # Seed must be set before instantiating the model when using model_init.
+            set_seed(self.args.seed)
+
+            model = self.call_model_init(trial)
+            if not self.is_model_parallel:
+                model = model.to(self.args.device)
+
+            self.model = model
+            self.model_wrapped = model
+
+            # Reinitializes optimizer and scheduler
+            self.optimizer, self.lr_scheduler = None, None
+
+        # Keeping track whether we can can len() on the dataset or not
+        train_dataset_is_sized = isinstance(self.train_dataset, collections.abc.Sized)
+        
+        # Data loader and number of training steps
+        train_dataloader = self.get_train_dataloader()
+
+        # Setting up training control variables:
+        # number of training epochs: num_train_epochs
+        # number of training steps per epoch: num_update_steps_per_epoch
+        # total number of training steps to execute: max_steps
+        if train_dataset_is_sized:
+            num_update_steps_per_epoch = len(train_dataloader) // self.args.gradient_accumulation_steps
+            num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
+            if self.args.max_steps > 0:
+                max_steps = self.args.max_steps
+                num_train_epochs = self.args.max_steps // num_update_steps_per_epoch + int(
+                    self.args.max_steps % num_update_steps_per_epoch > 0
+                )
+            else:
+                max_steps = math.ceil(self.args.num_train_epochs * num_update_steps_per_epoch)
+                num_train_epochs = math.ceil(self.args.num_train_epochs)
+        else:
+            # see __init__. max_steps is set when the dataset has no __len__
+            max_steps = self.args.max_steps
+            num_train_epochs = 1
+            num_update_steps_per_epoch = max_steps
+
+        if self.args.deepspeed:
+            model, optimizer, lr_scheduler = init_deepspeed(self, num_training_steps=max_steps)
+            self.model = model.module
+            self.model_wrapped = model  # will get further wrapped in DDP
+            self.deepspeed = model  # DeepSpeedEngine object
+            self.optimizer = optimizer
+            self.lr_scheduler = lr_scheduler
+        else:
+            self.create_optimizer_and_scheduler(num_training_steps=max_steps)
+
+        self.state = TrainerState()
+        self.state.is_hyper_param_search = trial is not None
+
+        # Check if saved optimizer or scheduler states exist
+        self._load_optimizer_and_scheduler(model_path)
+
+        model = self.model_wrapped
+
+        # Mixed precision training with apex (torch < 1.6)
+        if self.use_apex:
+            model, self.optimizer = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level)
+
+        # Multi-gpu training (should be after apex fp16 initialization)
+        if self.args.n_gpu > 1:
+            model = torch.nn.DataParallel(model)
+
+        # Distributed training (should be after apex fp16 initialization)
+        if False: # self.sharded_dpp:
+            model = ShardedDDP(model, self.optimizer)
+        elif self.args.local_rank != -1:
+            model = torch.nn.parallel.DistributedDataParallel(
+                model,
+                device_ids=[self.args.local_rank],
+                output_device=self.args.local_rank,
+                find_unused_parameters=(
+                    not getattr(model.config, "gradient_checkpointing", False)
+                    if isinstance(model, PreTrainedModel)
+                    else True
+                ),
+            )
+            # find_unused_parameters breaks checkpointing as per
+            # https://github.com/huggingface/transformers/pull/4659#issuecomment-643356021
+
+        # for the rest of this function `model` is the outside model, whether it was wrapped or not
+        if model is not self.model:
+            self.model_wrapped = model
+
+        # important: at this point:
+        # self.model         is the Transformers Model
+        # self.model_wrapped is DDP(Transformers Model), DDP(Deepspeed(Transformers Model)), etc.
+
+        # Train!
+        if is_torch_tpu_available():
+            total_train_batch_size = self.args.train_batch_size * xm.xrt_world_size()
+        else:
+            total_train_batch_size = (
+                self.args.train_batch_size
+                * self.args.gradient_accumulation_steps
+                * (torch.distributed.get_world_size() if self.args.local_rank != -1 else 1)
+            )
+
+        num_examples = (
+            self.num_examples(train_dataloader)
+            if train_dataset_is_sized
+            else total_train_batch_size * self.args.max_steps
+        )
+
+        logger.info("***** Running training *****")
+        logger.info(f"  Num examples = {num_examples}")
+        logger.info(f"  Num Epochs = {num_train_epochs}")
+        logger.info(f"  Instantaneous batch size per device = {self.args.per_device_train_batch_size}")
+        logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_train_batch_size}")
+        logger.info(f"  Gradient Accumulation steps = {self.args.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {max_steps}")
+
+        self.state.epoch = 0
+        start_time = time.time()
+        epochs_trained = 0
+        steps_trained_in_current_epoch = 0
+
+        # Check if continuing training from a checkpoint
+        if model_path and os.path.isfile(os.path.join(model_path, "trainer_state.json")):
+            self.state = TrainerState.load_from_json(os.path.join(model_path, "trainer_state.json"))
+            epochs_trained = self.state.global_step // num_update_steps_per_epoch
+            if not self.args.ignore_data_skip:
+                steps_trained_in_current_epoch = self.state.global_step % (num_update_steps_per_epoch)
+                steps_trained_in_current_epoch *= self.args.gradient_accumulation_steps
+            else:
+                steps_trained_in_current_epoch = 0
+
+            logger.info("  Continuing training from checkpoint, will skip to saved global_step")
+            logger.info(f"  Continuing training from epoch {epochs_trained}")
+            logger.info(f"  Continuing training from global step {self.state.global_step}")
+            if not self.args.ignore_data_skip:
+                logger.info(
+                    f"  Will skip the first {epochs_trained} epochs then the first {steps_trained_in_current_epoch} "
+                    "batches in the first epoch."
+                )
+
+        # Update the references
+        self.callback_handler.model = self.model
+        self.callback_handler.optimizer = self.optimizer
+        self.callback_handler.lr_scheduler = self.lr_scheduler
+        self.callback_handler.train_dataloader = train_dataloader
+        self.state.trial_name = self.hp_name(trial) if self.hp_name is not None else None
+        self.state.trial_params = hp_params(trial) if trial is not None else None
+        # This should be the same if the state has been saved but in case the training arguments changed, it's safer
+        # to set this after the load.
+        self.state.max_steps = max_steps
+        self.state.num_train_epochs = num_train_epochs
+        self.state.is_local_process_zero = self.is_local_process_zero()
+        self.state.is_world_process_zero = self.is_world_process_zero()
+
+        # tr_loss is a tensor to avoid synchronization of TPUs through .item()
+        tr_loss = torch.tensor(0.0).to(self.args.device)
+        # _total_loss_scalar is updated everytime .item() has to be called on tr_loss and stores the sum of all losses
+        self._total_loss_scalar = 0.0
+        self._globalstep_last_logged = 0
+        self._total_flos = self.state.total_flos
+        model.zero_grad()
+
+        self.control = self.callback_handler.on_train_begin(self.args, self.state, self.control)
+
+
+        ##########################
+        ##########################
+        ##########################
+        # from senteval.sts import STSBenchmarkEval
+        #from senteval.sts import STSBenchmarkFulltrain
+
+        # 'STSBenchmark-fulltrain'
+
+        # SentEval prepare and batcher
+        def prepare(params, samples):
+            return
+
+        def batcher(params, batch):
+            sentences = [' '.join(s) for s in batch]
+            batch = self.tokenizer.batch_encode_plus(
+                sentences,
+                return_tensors='pt',
+                padding=True,
+            )
+            for k in batch:
+                batch[k] = batch[k].to(self.args.device)
+            # with torch.no_grad():
+            #     outputs = self.model(**batch, output_hidden_states=True, return_dict=True, sent_emb=True)
+            #     pooler_output = outputs.pooler_output
+            return batch # pooler_output.cpu()
+
+        # Set params for SentEval (fastmode)
+        params = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
+        params['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
+                                            'tenacity': 3, 'epoch_size': 2}
+
+        '''
+        self.params.current_task = name
+        self.evaluation.do_prepare(self.params, self.prepare)
+
+        self.results = self.evaluation.run(self.params, self.batcher)
+
+        return self.results
+
+
+        outputs = self.model(**batch, output_hidden_states=True, return_dict=True, sent_emb=True)
+        pooler_output = outputs.pooler_output
+        '''
+
+        class Backbone(nn.Module):
+            def __init__(self, backbone):
+                super().__init__()
+                self.backbone = backbone
+                self.config = backbone.config
+
+            def forward(self, batch):
+                #outputs = self.backbone(**batch, output_hidden_states=True, return_dict=True, sent_emb=True)
+                outputs = self.backbone(**batch, output_hidden_states=True, return_dict=True, sent_emb=True)
+                pooler_output = outputs.pooler_output
+                #print(pooler_output.shape) # torch.Size([64, 768])
+                return pooler_output
+
+
+        backbone = Backbone(self.model)
+        se = senteval.engine.SE(params, batcher, prepare)
+        tasks = ['STSBenchmark-fulltrain']
+        evaluation = se.eval(tasks)
+        se.evaluation.do_prepare(se.params, se.prepare)
+        results = se.evaluation.run(se.params, se.batcher, backbone)
+        #results = se.eval(tasks)
+        
+        #print(results)
+        # stsb_spearman = results['STSBenchmark']['dev']['spearman'][0]
+        # sickr_spearman = results['SICKRelatedness']['dev']['spearman'][0]
+        #stsb_spearman = results['spearman']
+
+        # {'devspearman': devspr, 'pearson': pr, 'spearman': sr, 'mse': se,
+        #        'yhat': yhat, 'ndev': len(devA), 'ntest': len(testA)}
+
+        #sickr_spearman = 
+        #metrics = {"eval_stsb_spearman": stsb_spearman}
+        #metrics = {"eval_stsb_spearman": stsb_spearman, "eval_sickr_spearman": sickr_spearman, "eval_avg_sts": (stsb_spearman + sickr_spearman) / 2} 
+        metrics = {"eval_stsb_spearman": results['spearman'], 'eval_stsb_pearman': results['pearson'], 'eval_stsb_mse': results['mse'],
+                   'devspearman': results['devspearman'], 'ndev': results['ndev'], 'ntest': results['ntest']
+                   }
+        self.log(metrics)
+        # return metrics
+        #return None
+        #return metrics
+        return TrainOutput(0, 0, metrics)
 
     def evaluate(
         self,
@@ -592,4 +850,10 @@ class CLTrainer(Trainer):
         if self.state.global_step == 0:
             self.state.global_step = 1
 
+        '''
+        class TrainOutput(NamedTuple):
+            global_step: int
+            training_loss: float
+            metrics: Dict[str, float]
+        '''
         return TrainOutput(self.state.global_step, self._total_loss_scalar / self.state.global_step, metrics)

@@ -363,6 +363,120 @@ class STSBenchmarkEval(STSEval):
         self.samples += sick_data['X_A'] + sick_data["X_B"]
         return (sick_data['X_A'], sick_data["X_B"], sick_data['y'])
 
+from sklearn.metrics import mean_squared_error
+from senteval.tools.relatedness import RelatednessPytorchFull
+
+class STSBenchmarkFulltrain(SICKEval):
+    def __init__(self, task_path, seed=1111):
+        logging.debug('\n\n***** Transfer task : STSBenchmark*****\n\n')
+        self.seed = seed
+        train = self.loadFile(os.path.join(task_path, 'sts-train.csv'))
+        dev = self.loadFile(os.path.join(task_path, 'sts-dev.csv'))
+        test = self.loadFile(os.path.join(task_path, 'sts-test.csv'))
+        self.sick_data = {'train': train, 'dev': dev, 'test': test}
+
+    def loadFile(self, fpath):
+        sick_data = {'X_A': [], 'X_B': [], 'y': []}
+        with io.open(fpath, 'r', encoding='utf-8') as f:
+            for line in f:
+                text = line.strip().split('\t')
+                sick_data['X_A'].append(text[5].split())
+                sick_data['X_B'].append(text[6].split())
+                sick_data['y'].append(text[4])
+                # print(sick_data) 
+                # {'X_A': [['a', 'plane', 'is', 'taking', 'off', '.']], 'X_B': [['an', 'air', 'plane', 'is', 'taking', 'off', '.']], 'y': ['5.000']}
+                # assert(False)
+
+        sick_data['y'] = [float(s) for s in sick_data['y']]
+        return sick_data
+
+    def run(self, params, batcher, backbone):
+        sick_embed = {'train': {}, 'dev': {}, 'test': {}}
+        bsize = params.batch_size
+
+        for key in self.sick_data:
+            logging.info('Computing embedding for {0}'.format(key))
+            # Sort to reduce padding
+            sorted_corpus = sorted(zip(self.sick_data[key]['X_A'],
+                                       self.sick_data[key]['X_B'],
+                                       self.sick_data[key]['y']),
+                                   key=lambda z: (len(z[0]), len(z[1]), z[2]))
+
+            self.sick_data[key]['X_A'] = [x for (x, y, z) in sorted_corpus]
+            self.sick_data[key]['X_B'] = [y for (x, y, z) in sorted_corpus]
+            self.sick_data[key]['y'] = [z for (x, y, z) in sorted_corpus]
+
+            for txt_type in ['X_A', 'X_B']:
+                sick_embed[key][txt_type] = []
+                for ii in range(0, len(self.sick_data[key]['y']), bsize):
+                    batch = self.sick_data[key][txt_type][ii:ii + bsize]
+                    #tokens = batcher(params, batch)
+                    #print(tokens)
+                    #assert(False)
+                    sick_embed[key][txt_type].extend(batch)
+
+                #print(sick_embed[key][txt_type]) # a list of list of lists?
+                #sick_embed[key][txt_type] = np.vstack(sick_embed[key][txt_type])
+            sick_embed[key]['y'] = np.array(self.sick_data[key]['y'])
+            logging.info('Computed {0} embeddings'.format(key))
+
+        # Train
+        trainA = sick_embed['train']['X_A']
+        trainB = sick_embed['train']['X_B']
+        #trainF = np.c_[np.abs(trainA - trainB), trainA * trainB]
+        trainY = self.encode_labels(self.sick_data['train']['y'])
+
+        # Dev
+        devA = sick_embed['dev']['X_A']
+        devB = sick_embed['dev']['X_B']
+        #devF = np.c_[np.abs(devA - devB), devA * devB]
+        devY = self.encode_labels(self.sick_data['dev']['y'])
+
+        # Test
+        testA = sick_embed['test']['X_A']
+        testB = sick_embed['test']['X_B']
+        #testF = np.c_[np.abs(testA - testB), testA * testB]
+
+        '''
+        def encode_labels(self, labels, nclass=5):
+        """
+        Label encoding from Tree LSTM paper (Tai, Socher, Manning)
+        """
+        Y = np.zeros((len(labels), nclass)).astype('float32')
+        for j, y in enumerate(labels):
+            for i in range(nclass):
+                if i+1 == np.floor(y) + 1:
+                    Y[j, i] = y - np.floor(y)
+                if i+1 == np.floor(y):
+                    Y[j, i] = np.floor(y) - y + 1
+        return Y
+        '''
+        testY = self.encode_labels(self.sick_data['test']['y'])
+
+        config = {'seed': self.seed, 'nclasses': 5}
+        #backbone.train()
+        clf = RelatednessPytorchFull(train={'X_A': trainA, 'X_B': trainB, 'y': trainY},
+                                 valid={'X_A': devA, 'X_B': devB, 'y': devY},
+                                 test={'X_A': testA, 'X_B': testB,'y': testY},
+                                 devscores=self.sick_data['dev']['y'],
+                                 config=config, backbone=backbone, batcher=batcher, params=params)
+
+        devspr, yhat = clf.run()
+
+        pr = pearsonr(yhat, self.sick_data['test']['y'])[0]
+        sr = spearmanr(yhat, self.sick_data['test']['y'])[0]
+        print("[!] pr, sr: ", pr, sr)
+        pr = 0 if pr != pr else pr
+        sr = 0 if sr != sr else sr
+        se = mean_squared_error(yhat, self.sick_data['test']['y'])
+        logging.debug('Dev : Spearman {0}'.format(devspr))
+        logging.debug('Test : Pearson {0} Spearman {1} MSE {2} \
+                       for SICK Relatedness\n'.format(pr, sr, se))
+
+        return {'devspearman': devspr, 'pearson': pr, 'spearman': sr, 'mse': se,
+                'yhat': yhat, 'ndev': len(devA), 'ntest': len(testA)}
+    
+
 class STSBenchmarkFinetune(SICKEval):
     def __init__(self, task_path, seed=1111):
         logging.debug('\n\n***** Transfer task : STSBenchmark*****\n\n')
