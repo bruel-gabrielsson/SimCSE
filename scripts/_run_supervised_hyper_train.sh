@@ -39,7 +39,7 @@ do
             #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_MLMO_ODA/REGMLMO_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/SUPER_REG_NOV23_S${seed}/SUPREG_${layer}_b${batch_size}_lr${learning_rate}_s${seed}"
-            output_dir="/mnt/brg/simcse-data/HYPER/SUPER_REG_NOV23_S${seed}/SUPREG_${layer}_b${batch_size}_lr${learning_rate}_s${seed}"
+            output_dir="/mnt/brg/simcse-data/HYPER/SUPER_TRAIN_NOV23_S${seed}/SUPTRA_${layer}_b${batch_size}_lr${learning_rate}_s${seed}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             # 
             # --transform_layer $layer \
@@ -50,6 +50,7 @@ do
                 --transform_layer $layer \
                 --higher_transform_p 0.5 \
                 --higher_dropout_p 0.5 \
+                --transform_trainable \
                 --attention_probs_dropout_prob 0.1 \
                 --hidden_dropout_prob 0.1 \
                 --model_name_or_path bert-base-uncased \
