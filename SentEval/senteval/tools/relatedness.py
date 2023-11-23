@@ -162,7 +162,7 @@ class RelatednessPytorchFull(object):
         self.seed = config['seed']
         self.l2reg = 0.
         self.batch_size = 64
-        self.maxepoch = 1 #
+        self.maxepoch = 100 #
         self.early_stop = True
 
         self.backbone = backbone
