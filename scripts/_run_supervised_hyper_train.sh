@@ -18,7 +18,7 @@ declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 #declare -a layers=(3) # 0 1 2 3 4 5 6)
 declare -a batch_sizes=(0) # 128 256 512) ####
 declare -a learning_rates=(0) # 1e-5 3e-5) #  5e-5)
-declare -a devices=(0 1 2) #  1 2) 
+declare -a devices=(3 4 5) #  1 2) 
 declare -a seeds=(1 2 3) # 2) # 42
 
 # for seed in "${seeds[@]}"
