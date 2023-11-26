@@ -51,5 +51,9 @@ base_dir = "/mnt/brg/simcse-data/HYPER/"
 #base_dir = "/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/"
 data = iterate_directories(base_dir)
 stats = compute_statistics(data)
-for num, value in stats.items():
+
+# Sorting the stats by the num key
+sorted_stats = sorted(stats.items())
+
+for num, value in sorted_stats.items():
     print(f"({num}, {value['mean']})+-(0,{value['std']})")
