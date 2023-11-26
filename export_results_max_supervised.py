@@ -25,6 +25,7 @@ def read_and_sort_folders(directory):
     eval_avg_transfer = defaultdict(float)
     eval_dir = defaultdict(str)
 
+
     # Get a list of all subdirectories in the specified directory
     subdirectories = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
@@ -67,6 +68,7 @@ def read_and_sort_folders(directory):
         print("PREFIX: {}\n{}\n{}\n{}\n{}\n".format(prefix, eval_stsb_spearman[prefix], eval_avg_sts[prefix], eval_avg_transfer[prefix], eval_dir[prefix]))
 
 if __name__ == '__main__':
+    
     
 
     if len(sys.argv) == 2:
