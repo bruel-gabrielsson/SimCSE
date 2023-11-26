@@ -314,9 +314,9 @@ class CLTrainer(Trainer):
             return batch # pooler_output.cpu()
 
         # Set params for SentEval (fastmode)
-        params = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-        params['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
-                                            'tenacity': 3, 'epoch_size': 2}
+        params = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5, "seed": self.args.seed}
+        #params['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
+        #                                    'tenacity': 3, 'epoch_size': 2}
 
         '''
         self.params.current_task = name
