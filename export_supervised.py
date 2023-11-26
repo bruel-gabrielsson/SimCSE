@@ -3,7 +3,7 @@ import re
 import numpy as np
 
 def extract_number(dir_name):
-    match = re.search(r'SUPREG_(\d+)_', dir_name)
+    match = re.search(r'SUPTRA_(\d+)_', dir_name)
     return int(match.group(1)) if match else None
 
 def get_eval_stsb_spearman(file_path):
@@ -21,7 +21,7 @@ def iterate_directories(base_dir):
 
     for root, dirs, _ in os.walk(base_dir):
         #print("root", root)
-        if 'SUPER_REG_NOV23_S' in root:
+        if 'SUPER_TRAIN_NOV23_S' in root:
             print("root", root)
             for dir in dirs:
                 num = extract_number(dir)
