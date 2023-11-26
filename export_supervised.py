@@ -20,7 +20,7 @@ def iterate_directories(base_dir):
     data = {}
 
     for root, dirs, _ in os.walk(base_dir):
-        print("root", root)
+        #print("root", root)
         if 'SUPER_REG_NOV23_S' in root:
             print("root", root)
             for dir in dirs:
