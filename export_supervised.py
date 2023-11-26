@@ -52,4 +52,4 @@ base_dir = "/mnt/brg/simcse-data/HYPER/"
 data = iterate_directories(base_dir)
 stats = compute_statistics(data)
 for num, value in stats.items():
-    print(f"Number {num}: Mean = {value['mean']}, Std = {value['std']}")
+    print(f"({num}, {value['mean']})+-(0,{value['std']})")
