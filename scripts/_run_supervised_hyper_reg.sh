@@ -76,7 +76,7 @@ do
                 --do_train_supervised \
                 --do_eval \
                 --seed $seed \
-                --fp16
+                --fp16 \
                 "$@" \
                 &
         done
