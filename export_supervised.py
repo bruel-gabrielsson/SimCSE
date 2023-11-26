@@ -40,6 +40,7 @@ def iterate_directories(base_dir):
 def compute_statistics(data):
     stats = {}
     for num, values in data.items():
+        print(len(values))
         stats[num] = {
             'mean': np.mean(values),
             'std': np.std(values)
