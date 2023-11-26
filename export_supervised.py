@@ -55,5 +55,5 @@ stats = compute_statistics(data)
 # Sorting the stats by the num key
 sorted_stats = sorted(stats.items())
 
-for num, value in sorted_stats.items():
+for num, value in sorted_stats:
     print(f"({num}, {value['mean']})+-(0,{value['std']})")
