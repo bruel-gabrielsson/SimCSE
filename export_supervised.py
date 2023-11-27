@@ -48,6 +48,7 @@ def iterate_directories(base_dir):
                     print(f"Could not extract number from {dir}")
 
             for num, this_data in this_seed_data.items():
+                print(len(this_data))
                 if num not in data:
                     data[num] = []
                 data[num].append(np.array(this_data).max())
