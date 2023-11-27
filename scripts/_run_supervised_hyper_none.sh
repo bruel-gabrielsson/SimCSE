@@ -18,7 +18,7 @@ declare -a layers=(-10) # 1 2 3 4 5 6 7 8 9 10 11 12 13)
 #declare -a layers=(3) # 0 1 2 3 4 5 6)
 declare -a batch_sizes=(64) # 128 256 512) ####
 declare -a learning_rates=(0.0001) # 1e-5 3e-5) #  5e-5)
-declare -a devices=(3 4 5) #  1 2) 
+declare -a devices=(0 1 2 3 4 5 6) #  1 2) 
 declare -a seeds=(1) # 2 3) # 2) # 42
 declare -a dropout_rates=(0.0 0.01 0.05 0.1 0.15 0.20 0.5) #(0.5 0.25 0.125) #  0.05)
 #  0%, 1%, 5%, 10%, 15%, 20%
