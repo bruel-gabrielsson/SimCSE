@@ -3,7 +3,11 @@ import re
 import numpy as np
 
 def extract_number(dir_name):
-    match = re.search(r'SUPTRA_(\d+)_', dir_name)
+    match = re.search(r'_L(\d+)_', dir_name)
+    return int(match.group(1)) if match else None
+
+def extract_seed(dir_name):
+    match = re.search(r'_S(\d+)_', dir_name)
     return int(match.group(1)) if match else None
 
 def get_eval_stsb_spearman(file_path):
@@ -21,19 +25,32 @@ def iterate_directories(base_dir):
 
     for root, dirs, _ in os.walk(base_dir):
         #print("root", root)
-        if 'SUPER_TRAIN_NOV23_S' in root:
+        if 'SUPER_REG_NOV26_S' in root:
             print("root", root)
+
+            #seed = extract_seed(root)
+
+            this_seed_data = {}
+
+            # This will iterate over all the directories in the root
             for dir in dirs:
+                
                 num = extract_number(dir)
                 if num is not None:
                     file_path = os.path.join(root, dir, 'train_results.txt')
                     spearman_value = get_eval_stsb_spearman(file_path)
                     if spearman_value is not None:
-                        if num not in data:
-                            data[num] = []
-                        data[num].append(spearman_value)
+                        if num not in this_seed_data:
+                            this_seed_data[num] = []
+                        this_seed_data[num].append(spearman_value)
+                        #this_seed_data.append(spearman_value)
                 else:
                     print(f"Could not extract number from {dir}")
+
+            for num, this_data in this_seed_data.items():
+                if num not in data:
+                    data[num] = []
+                data[num].append(np.array(this_data).max())
 
     return data
 
