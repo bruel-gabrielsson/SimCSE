@@ -25,7 +25,7 @@ def iterate_directories(base_dir):
 
     for root, dirs, _ in os.walk(base_dir):
         #print("root", root)
-        if 'SUPER_TRAIN_NOV26_S' in root:
+        if 'SUPER_NONE_NOV26_S' in root:
             print("root", root) 
             # /mnt/brg/simcse-data/HYPER/SUPER_REG_NOV26_S1/SUPREG_L12_dr0.25_b64_lr0.0001_s1
 
