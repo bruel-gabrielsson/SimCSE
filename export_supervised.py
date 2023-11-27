@@ -7,7 +7,7 @@ def extract_number(dir_name):
     return int(match.group(1)) if match else None
 
 def extract_seed(dir_name):
-    match = re.search(r'_S(\d+)_', dir_name)
+    match = re.search(r'_S(\d+)/', dir_name)
     return int(match.group(1)) if match else None
 
 def get_eval_stsb_spearman(file_path):
@@ -58,7 +58,7 @@ def iterate_directories(base_dir):
         if num not in data:
             return_data[num] = []
         return_data[num].append(np.array(this_data).max())
-        
+
     data = return_data
 
     return data
