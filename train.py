@@ -663,7 +663,7 @@ def main():
 
     data_collator = default_data_collator if data_args.pad_to_max_length else OurDataCollatorWithPadding(tokenizer)
 
-    training_args.PCA_size = model_args.PCA_size
+    #training_args.PCA_size = model_args.PCA_size
 
     # Rickard: this could be different for supervised learning, but eval would not be the same head? How do they do with MLM head?
     trainer = CLTrainer(
