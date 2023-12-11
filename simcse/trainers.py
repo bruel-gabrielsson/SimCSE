@@ -63,6 +63,7 @@ if is_torch_tpu_available():
     import torch_xla.distributed.parallel_loader as pl
 
 if is_apex_available():
+    print("[!] Using APEX")
     from apex import amp
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
