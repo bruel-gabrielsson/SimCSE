@@ -551,7 +551,7 @@ class CLTrainer(Trainer):
         The main difference between ours and Huggingface's original implementation is that we 
         also load model_args when reloading best checkpoints for evaluation.
         """
-        if model.config.PCA_size == 0:
+        if model.config.PCA_size != 0:
             print("[!] PCA_size is 0, use_apex=False")
             self.use_apex = False
 
