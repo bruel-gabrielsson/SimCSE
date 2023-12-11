@@ -183,8 +183,10 @@ class CLTrainer(Trainer):
         model = self.model_wrapped
 
         # Mixed precision training with apex (torch < 1.6)
-        # if self.use_apex:
-        #     model, self.optimizer = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level)
+        if self.use_apex and model.config.PCA_size == 0:
+            model, self.optimizer = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level)
+        else:
+            print("[!] Not using APEX")
 
         # Multi-gpu training (should be after apex fp16 initialization)
         if self.args.n_gpu > 1:
