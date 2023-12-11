@@ -175,6 +175,12 @@ class ModelArguments:
             "help": "higher_transform_p"
         }
     )
+    PCA_size: int = field(
+        default=0,
+        metadata={
+            "help": "PCA_size"
+        }
+    )
     attention_probs_dropout_prob: float = field(
         default=0.1,
         metadata={
@@ -449,6 +455,7 @@ def main():
     config.higher_dropout_p = model_args.higher_dropout_p
     config.higher_transform_detach_p = model_args.higher_transform_detach_p
     config.skip_contrastive_loss = model_args.skip_contrastive_loss # does something in models.py
+    config.PCA_size = int(model_args.PCA_size)
     
     print("config", config)
 
