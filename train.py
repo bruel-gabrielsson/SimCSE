@@ -290,6 +290,8 @@ class OurTrainingArguments(TrainingArguments):
         }
     )
 
+    
+
     @cached_property
     #@torch_required
     def _setup_devices(self) -> "torch.device":
@@ -456,6 +458,8 @@ def main():
     config.higher_transform_detach_p = model_args.higher_transform_detach_p
     config.skip_contrastive_loss = model_args.skip_contrastive_loss # does something in models.py
     config.PCA_size = int(model_args.PCA_size)
+    if config.PCA_size != 0:
+        training_args.fp16 = False
     
     print("config", config)
 
