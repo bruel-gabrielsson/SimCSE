@@ -64,7 +64,7 @@ if is_torch_tpu_available():
 
 if is_apex_available():
     print("[!] Using APEX")
-    from apex import amp
+    #from apex import amp
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
     _is_native_amp_available = True
