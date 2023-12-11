@@ -551,9 +551,7 @@ class CLTrainer(Trainer):
         The main difference between ours and Huggingface's original implementation is that we 
         also load model_args when reloading best checkpoints for evaluation.
         """
-        if model.config.PCA_size != 0:
-            print("[!] PCA_size is 0, use_apex=False")
-            self.use_apex = False
+        
 
         # This might change the seed so needs to run first.
         self._hp_search_setup(trial)
@@ -617,6 +615,10 @@ class CLTrainer(Trainer):
         self._load_optimizer_and_scheduler(model_path)
 
         model = self.model_wrapped
+
+        if model.config.PCA_size != 0:
+            print("[!] PCA_size is 0, use_apex=False")
+            self.use_apex = False
 
         # Mixed precision training with apex (torch < 1.6)
         if self.use_apex:
