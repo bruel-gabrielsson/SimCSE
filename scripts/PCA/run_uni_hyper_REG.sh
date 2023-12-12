@@ -56,11 +56,10 @@ do
                 --temp 0.05 \
                 --do_train \
                 --do_eval \
-                --fp16
+                --fp16 \
                 "$@" \
                 &
-        wait
-	done
+	    done
         wait
         wait
     done
