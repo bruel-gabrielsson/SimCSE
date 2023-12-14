@@ -616,9 +616,9 @@ class CLTrainer(Trainer):
 
         model = self.model_wrapped
 
-        if model.config.PCA_size != 0:
-            print("[!] PCA_size is 0, use_apex=False")
-            self.use_apex = False
+        # if model.config.PCA_size != 0:
+        #     print("[!] PCA_size is 0, use_apex=False")
+        #     self.use_apex = False
 
         # Mixed precision training with apex (torch < 1.6)
         if self.use_apex:
