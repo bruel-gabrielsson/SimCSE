@@ -20,15 +20,15 @@ declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(3 4 5) 
 for layer in "${layers[@]}"
 do 
-    for learning_rate in "${learning_rates[@]}"
+    for batch_size in "${batch_sizes[@]}"
     do 
         device_index=-1
         for _ in "${devices[@]}"
         do
             device_index=$((device_index + 1))
 
-            batch_size=$((batch_sizes[device_index]))
-            #learning_rate=$((learning_rates[device_index]))
+            #batch_size=$((batch_sizes[device_index]))
+            learning_rate=$((learning_rates[device_index]))
             device=$((devices[device_index]))
 
             size="1"
