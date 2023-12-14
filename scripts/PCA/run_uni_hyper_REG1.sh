@@ -28,7 +28,8 @@ do
             device_index=$((device_index + 1))
 
             #batch_size=$((batch_sizes[device_index]))
-            learning_rate=$((learning_rates[device_index]))
+            #learning_rate=$((learning_rates[device_index]))
+            learning_rate=$(awk "BEGIN {print ${learning_rates[$device_index]}}")
             device=$((devices[device_index]))
 
             size="1"
