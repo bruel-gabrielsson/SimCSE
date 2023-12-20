@@ -44,7 +44,7 @@ do
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_MLMO_ODA/REGMLMO_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/SUPER_REG_NOV23_S${seed}/SUPREG_${layer}_b${batch_size}_lr${learning_rate}_s${seed}"
             
-            output_dir="/mnt/brg/simcse-data/HYPER/SUPER_PCA${size}_REG_DEC20_S${seed}/SUPREG_L${layer}_dr${dropout_rate}_b${batch_size}_lr${learning_rate}_s${seed}"
+            output_dir="/mnt2/brg/simcse-data/HYPER/SUPER_PCA${size}_REG_DEC20_S${seed}/SUPREG_L${layer}_dr${dropout_rate}_b${batch_size}_lr${learning_rate}_s${seed}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             # 
             # --transform_layer $layer \
