@@ -3,7 +3,7 @@ import re
 import numpy as np
 
 def extract_number(dir_name):
-    match = re.search(r'_L-(\d+)_', dir_name)
+    match = re.search(r'_L(\d+)_', dir_name)
     return int(match.group(1)) if match else None
 
 def extract_seed(dir_name):
