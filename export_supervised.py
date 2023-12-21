@@ -30,6 +30,7 @@ def iterate_directories(base_dir):
             # /mnt/brg/simcse-data/HYPER/SUPER_REG_NOV26_S1/SUPREG_L12_dr0.25_b64_lr0.0001_s1
 
             seed = extract_seed(root)
+            print(seed)
             if seed is not None:
 
                 #this_seed_data = {}
@@ -38,6 +39,7 @@ def iterate_directories(base_dir):
                 for dir in dirs:
                     
                     num = extract_number(dir)
+                    print(num)
                     if num is not None:
                         file_path = os.path.join(root, dir, 'train_results.txt')
                         spearman_value = get_eval_stsb_spearman(file_path)
