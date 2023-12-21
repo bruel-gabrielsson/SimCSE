@@ -77,6 +77,7 @@ def compute_statistics(data):
 base_dir = "/mnt2/brg/simcse-data/HYPER/"
 #base_dir = "/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/"
 data = iterate_directories(base_dir)
+print("---------------")
 stats = compute_statistics(data)
 
 # Sorting the stats by the num key
