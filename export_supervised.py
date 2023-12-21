@@ -54,10 +54,11 @@ def iterate_directories(base_dir):
                 print(f"Could not extract seed from {root}")
 
     return_data = {}
+    print("=======")
     for key, this_data in data.items():
         print(len(this_data))
         seed, num = key
-        if num not in data:
+        if num not in return_data:
             return_data[num] = []
         return_data[num].append(np.array(this_data).max())
 
