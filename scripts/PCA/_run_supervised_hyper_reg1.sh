@@ -38,7 +38,7 @@ do
             seed=${seeds[$device_index]}
             device=$((devices[device_index]))
             dropout_rate=0 # ${dropout_rates[$device_index]}
-            size=-1
+            size=1
 
             #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_MLMO_ODA/REGMLMO_L${layer}_b${batch_size}_lr${learning_rate}"
