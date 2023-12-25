@@ -81,6 +81,39 @@ class Pooler(nn.Module):
             return pooled_result
         else:
             raise NotImplementedError
+        
+def PCA_augment(x, this_x, size):
+    # set x to full precision
+    #x = x.to(torch.float32)
+
+    K = size
+    A = x.reshape(len(x), -1)
+    mean = A.mean(dim=0)
+    #print(A.shape) # 0 torch.Size([2048, 65536]) # 3 torch.Size([2048, 16384]) 4 torch.Size([2048, 8192])
+    (U, S, V) = torch.pca_lowrank(A, q=None, center=True, niter=2) 
+    #print(V[:, :1])
+    #print(V[:, :1].shape) # [65536, 1])
+    #C = V[:, :K] # [65536, 1]
+    if K >= 1:
+        C = V[:, :K]
+    elif K < 0:
+        C = V[:, K:] # [65536, 1]
+    else:
+        print("[!] Not running PCA")
+        return this_x
+    
+    Ap = this_x.reshape(len(this_x), -1) # [549, 65536] 
+    Ap = Ap - mean
+
+    proj = torch.matmul(Ap, C) # torch.Size([549, 1])
+    vecs = torch.matmul(proj, C.permute(1,0))
+    #print(vecs.shape)
+    #print("PCA", torch.norm(vecs))
+    Ap = Ap - vecs
+    #(Ap.shape)
+    Ap = Ap + mean
+    #print('!')
+    return Ap.reshape(this_x.size())
 
 
 def cl_init(cls, config):
@@ -177,9 +210,17 @@ def cl_forward(cls,
             big_mask = torch.zeros(pooler_output.size(), device=pooler_output.device)
             big_mask[mask_this_transform] = 1.0
 
-            #print(big_mask[:4])
+            #print(big_mask[:4])   
 
-            pooler_output = pooler_output + (torch.nn.Dropout(p=cls.config.higher_dropout_p, inplace=False)(pooler_output) - pooler_output) * big_mask
+            # special implementation for gradient reasons?
+            if cls.config.PCA_size != 0:
+                print("PCA")
+                pooler_output = pooler_output + (PCA_augment(pooler_output, pooler_output, cls.config.PCA_size) - pooler_output) * big_mask
+            else:
+                pooler_output = pooler_output + (torch.nn.Dropout(p=cls.config.higher_dropout_p, inplace=False)(pooler_output) - pooler_output) * big_mask
+
+
+
             if not cls.config.transform_trainable: # detaching a subset of transformed
                 mask_this_transform_detach = torch.zeros(len(pooler_output)).to(pooler_output.device) > 0
                 mask_this_transform_detach[torch.logical_and(mask_this_transform_detach, torch.cuda.FloatTensor(len(pooler_output)).uniform_()<=cls.config.higher_transform_detach_p)] = True
