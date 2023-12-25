@@ -214,7 +214,7 @@ def cl_forward(cls,
 
             # special implementation for gradient reasons?
             if cls.config.PCA_size != 0:
-                print("PCA")
+                #print("PCA")
                 pooler_output = pooler_output + (PCA_augment(pooler_output, pooler_output, cls.config.PCA_size) - pooler_output) * big_mask
             else:
                 pooler_output = pooler_output + (torch.nn.Dropout(p=cls.config.higher_dropout_p, inplace=False)(pooler_output) - pooler_output) * big_mask
