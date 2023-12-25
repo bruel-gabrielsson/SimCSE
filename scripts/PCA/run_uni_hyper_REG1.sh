@@ -14,7 +14,7 @@
 
 #export CUDA_VISIBLE_DEVICES="5"
 
-declare -a layers=(7)
+declare -a layers=(12 13)
 declare -a batch_sizes=(128 256) #  512) ####
 declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(3 4 5) 
@@ -34,7 +34,7 @@ do
 
             size="1"
             
-            output_dir="/mnt2/brg/simcse-data/HYPER/PCA${size}_REG/PCAREG_L${layer}_b${batch_size}_lr${learning_rate}_s${size}"
+            output_dir="/mnt2/brg/simcse-data/HYPER/PCA${size}_REG_DEC25/PCAREG_L${layer}_b${batch_size}_lr${learning_rate}_s${size}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --transform_layer $layer \
