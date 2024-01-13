@@ -486,10 +486,9 @@ def main():
             )
             if model_args.do_mlm:
                 print("do_mlm")
-                pretrained_model = BertForPreTraining.from_pretrained(model_args.model_name_or_path)
+                pretrained_model = BertForPreTraining.from_pretrained(model_args.model_name_or_path, config=config)
                 # This lm_head is used later for a cross entropy loss of predicting the correct tokens
                 model.lm_head.load_state_dict(pretrained_model.cls.predictions.state_dict())
-                model.config = config
 
                 '''
                 class BertForSequenceClassification(BertPreTrainedModel):
