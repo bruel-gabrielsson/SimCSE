@@ -14,7 +14,7 @@
 
 #export CUDA_VISIBLE_DEVICES="5"
 
-declare -a layers=(12 13)
+declare -a layers=(13)
 declare -a batch_sizes=(64 128 256) #  512) ####
 declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(0) 
