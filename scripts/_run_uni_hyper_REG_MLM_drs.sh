@@ -25,6 +25,7 @@ do
     for batch_size in "${batch_sizes[@]}"
     do 
         for dropout_rate in "${dropout_rates[@]}"
+        do  
             echo "${dropout_rate}"
             device_index=-1
             for _ in "${devices[@]}"
