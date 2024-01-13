@@ -35,7 +35,7 @@ do
                 device=$((devices[device_index]))
                 
                 #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
-                output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/Jan13_025REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}_dr${dropout_rate}"
+                output_dir="/mnt2/brg/simcse-data/HYPER/Jan13_025REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}_dr${dropout_rate}"
                 echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
                 CUDA_VISIBLE_DEVICES="${device}" python train.py \
                     --transform_layer $layer \
