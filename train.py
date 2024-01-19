@@ -181,6 +181,12 @@ class ModelArguments:
             "help": "PCA_size"
         }
     )
+    PCA_type: str = field(
+        default="normal",
+        metadata={
+            "help": "pca type."
+        }
+    ) 
     attention_probs_dropout_prob: float = field(
         default=0.1,
         metadata={
@@ -458,6 +464,7 @@ def main():
     config.higher_transform_detach_p = model_args.higher_transform_detach_p
     config.skip_contrastive_loss = model_args.skip_contrastive_loss # does something in models.py
     config.PCA_size = int(model_args.PCA_size)
+    config.PCA_type = model_args.PCA_type
     if config.PCA_size != 0:
         training_args.fp16 = False
     
