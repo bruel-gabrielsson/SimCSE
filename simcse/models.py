@@ -107,7 +107,15 @@ def PCA_augment(x, this_x, size, type="normal"):
         print("[!] Not running PCA")
         return this_x
     
-    Ap = this_x.reshape(len(this_x), -1) # [549, 65536] 
+    if type == "per_token":
+        #print("per_token")
+        Ap = this_x.reshape(-1, this_x.shape[-1])
+    elif type == "normal":
+        Ap = this_x.reshape(len(this_x), -1)
+    else:
+        assert(False)
+    
+    #Ap = this_x.reshape(len(this_x), -1) # [549, 65536] 
     Ap = Ap - mean
 
     proj = torch.matmul(Ap, C) # torch.Size([549, 1])
