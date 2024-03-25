@@ -82,12 +82,17 @@ class Pooler(nn.Module):
         else:
             raise NotImplementedError
         
-def PCA_augment(x, this_x, size):
+def PCA_augment(x, this_x, size, type="normal"):
     # set x to full precision
     #x = x.to(torch.float32)
 
     K = size
-    A = x.reshape(len(x), -1)
+    if type == "per_token":
+        A = x.reshape(-1, x.shape[-1])
+    elif type == "normal":
+        A = x.reshape(len(x), -1)
+    else:
+        assert(False)
     mean = A.mean(dim=0)
     #print(A.shape) # 0 torch.Size([2048, 65536]) # 3 torch.Size([2048, 16384]) 4 torch.Size([2048, 8192])
     (U, S, V) = torch.pca_lowrank(A, q=None, center=True, niter=2) 
@@ -102,7 +107,15 @@ def PCA_augment(x, this_x, size):
         print("[!] Not running PCA")
         return this_x
     
-    Ap = this_x.reshape(len(this_x), -1) # [549, 65536] 
+    if type == "per_token":
+        #print("per_token")
+        Ap = this_x.reshape(-1, this_x.shape[-1])
+    elif type == "normal":
+        Ap = this_x.reshape(len(this_x), -1)
+    else:
+        assert(False)
+    
+    #Ap = this_x.reshape(len(this_x), -1) # [549, 65536] 
     Ap = Ap - mean
 
     proj = torch.matmul(Ap, C) # torch.Size([549, 1])
@@ -215,7 +228,7 @@ def cl_forward(cls,
             # special implementation for gradient reasons?
             if cls.config.PCA_size != 0:
                 #print("PCA")
-                pooler_output = pooler_output + (PCA_augment(pooler_output, pooler_output, cls.config.PCA_size) - pooler_output) * big_mask
+                pooler_output = pooler_output + (PCA_augment(pooler_output, pooler_output, cls.config.PCA_size, type=cls.config.PCA_type) - pooler_output) * big_mask
             else:
                 pooler_output = pooler_output + (torch.nn.Dropout(p=cls.config.higher_dropout_p, inplace=False)(pooler_output) - pooler_output) * big_mask
 

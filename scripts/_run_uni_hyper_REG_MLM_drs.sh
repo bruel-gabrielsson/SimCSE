@@ -32,6 +32,8 @@ do
             do
                 device_index=$((device_index + 1))
 
+                #learning_rate=$(awk "BEGIN {print ${learning_rates[$device_index]}}")
+
                 learning_rate=${learning_rates[$device_index]}
                 device=$((devices[device_index]))
                 
