@@ -18,7 +18,7 @@ declare -a layers=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
 declare -a batch_sizes=(64 128 256) #  512) ####
 declare -a learning_rates=(1e-5 3e-5 5e-5)
 declare -a devices=(0 1 2) 
-declare -a seeds=(6 7)
+declare -a seeds=(7)
 
 
 for seed in "${seeds[@]}"
@@ -39,7 +39,7 @@ do
 
                 size="-1"
                 
-                output_dir="/mnt2/brg/simcse-data/HYPER/PCA${size}_TRAIN_Mar30_seed${seed}/PCATRAIN_L${layer}_b${batch_size}_lr${learning_rate}_s${size}_seed${seed}"
+                output_dir="/mnt2/brg/simcse-data/HYPER/PCA${size}_TRAIN_April16_seed${seed}/PCATRAIN_L${layer}_b${batch_size}_lr${learning_rate}_s${size}_seed${seed}"
                 echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
                 CUDA_VISIBLE_DEVICES="${device}" python train.py \
                     --transform_layer $layer \
@@ -63,6 +63,7 @@ do
                     --temp 0.05 \
                     --do_train \
                     --do_eval \
+                    --seed $seed \
                     --fp16 \
                     "$@" \
                     &
