@@ -24,7 +24,7 @@ from collections import defaultdict
 
 #from main_uni import set_loader, set_model
 
-from PIL import Image
+#from PIL import Image
 
 from CKA import linear_CKA, kernel_CKA
 
