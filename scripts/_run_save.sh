@@ -43,7 +43,7 @@ do
             #output_dir="/mnt2/brg/simcse-data/HYPER/REG_MLM/REGMLM_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/REG_MLMO_ODA/REGMLMO_L${layer}_b${batch_size}_lr${learning_rate}"
             #output_dir="/skunk-pod-storage-brg-40mit-2eedu-pvc/DATA/simcse-data/HYPER/SUPER_REG_NOV23_S${seed}/SUPREG_${layer}_b${batch_size}_lr${learning_rate}_s${seed}"
-            output_dir="/mnt/brg/simcse-data/HYPER/JUST_SAVE_JULY13_S${seed}/JUST_SAVE_L${layer}_dr${dropout_rate}_b${batch_size}_lr${learning_rate}_s${seed}"
+            output_dir="/mnt/brg/simcse-data/HYPER/JUST_SAVE_JULY14_S${seed}/JUST_SAVE_L${layer}_dr${dropout_rate}_b${batch_size}_lr${learning_rate}_s${seed}"
             echo "device ${device} batch_size ${batch_size} output_dir ${output_dir}"
             # 
             # --transform_layer $layer \
@@ -53,7 +53,6 @@ do
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --attention_probs_dropout_prob $dropout_rate \
                 --hidden_dropout_prob $dropout_rate \
-                --model_name_or_path bert-base-uncased \
                 --train_file data/wiki1m_for_simcse.txt \
                 --output_dir $output_dir \
                 --num_train_epochs 0 \
@@ -70,7 +69,6 @@ do
                 --overwrite_output_dir \
                 --temp 0.05 \
                 --do_train \
-                --do_train_supervised \
                 --do_eval \
                 --seed $seed \
                 --fp16

@@ -284,7 +284,7 @@ class OurTrainingArguments(TrainingArguments):
         }
     )
 
-    do_train_supervised: bool = field(
+    do_train_supervised: bool = field( # Does this have it's own learning rate? YES!!! !!!
         default=False,
         metadata={"help": "Train supervised."}
     )
@@ -518,7 +518,7 @@ def main():
 
                         self.init_weights()
                 '''
-        else:
+        else: # add another
             raise NotImplementedError
     else:
         raise NotImplementedError
