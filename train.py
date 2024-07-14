@@ -289,6 +289,11 @@ class OurTrainingArguments(TrainingArguments):
         metadata={"help": "Train supervised."}
     )
 
+    # dont_train: bool = field(
+    #     default=False,
+    #     metadata={"help": "Just save."}
+    # )
+
     seed: int = field(
         default=42, # this was default before from Transformers library
         metadata={
@@ -710,7 +715,7 @@ def main():
                     writer.write(f"{key} = {value}\n")
 
             # Need to save the state, since Trainer.save_model saves only the tokenizer with the model
-            trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
+            trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))        
 
     # Evaluation
     results = {}
