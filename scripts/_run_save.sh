@@ -54,7 +54,7 @@ do
                 --attention_probs_dropout_prob $dropout_rate \
                 --hidden_dropout_prob $dropout_rate \
                 --train_file data/wiki1m_for_simcse.txt \
-                --model_name_or_path none \
+                --model_type bert-base-uncased \
                 --output_dir $output_dir \
                 --num_train_epochs 0 \
                 --per_device_train_batch_size $batch_size \

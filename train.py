@@ -520,6 +520,7 @@ def main():
                 '''
         else: # add another
             logger.info("Training new model from scratch")
+            print("TRAINING FROM SCRATCH")
             model = AutoModelForMaskedLM.from_config(config)
             #raise NotImplementedError
     else:
