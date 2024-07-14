@@ -519,7 +519,9 @@ def main():
                         self.init_weights()
                 '''
         else: # add another
-            raise NotImplementedError
+            logger.info("Training new model from scratch")
+            model = AutoModelForMaskedLM.from_config(config)
+            #raise NotImplementedError
     else:
         raise NotImplementedError
         logger.info("Training new model from scratch")
