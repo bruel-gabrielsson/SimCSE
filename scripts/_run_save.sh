@@ -56,7 +56,7 @@ do
                 --model_name_or_path bert-base-uncased \
                 --train_file data/wiki1m_for_simcse.txt \
                 --output_dir $output_dir \
-                --num_train_epochs 1 \
+                --num_train_epochs 0 \
                 --per_device_train_batch_size $batch_size \
                 --learning_rate $learning_rate \
                 --max_seq_length 32 \
