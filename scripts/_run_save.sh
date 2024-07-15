@@ -57,7 +57,7 @@ do
                 --model_type bert \
                 --tokenizer_name bert-base-uncased \
                 --output_dir $output_dir \
-                --num_train_epochs 0 \
+                --num_train_epochs 1 \
                 --per_device_train_batch_size $batch_size \
                 --learning_rate $learning_rate \
                 --max_seq_length 32 \
