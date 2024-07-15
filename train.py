@@ -703,11 +703,14 @@ def main():
             if (model_args.model_name_or_path is not None and os.path.isdir(model_args.model_name_or_path))
             else None
         )
-        if training_args.do_train_supervised:
-            train_result = trainer.train_supervised(model_path=model_path)
-            #return train_result
+        if training_args.num_train_epochs > 0:
+            if training_args.do_train_supervised:
+                train_result = trainer.train_supervised(model_path=model_path)
+                #return train_result
+            else:
+                train_result = trainer.train(model_path=model_path)
         else:
-            train_result = trainer.train(model_path=model_path)
+            print("No training")
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
         output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
