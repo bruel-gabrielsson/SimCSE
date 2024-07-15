@@ -50,12 +50,16 @@ do
             # --higher_transform_p 0.5 \
             # --higher_dropout_p 0.5 \
             # 
+
+            '''
+            --model_type bert \
+            --tokenizer_name bert-base-uncased \
+            '''
             CUDA_VISIBLE_DEVICES="${device}" python train.py \
                 --attention_probs_dropout_prob $dropout_rate \
                 --hidden_dropout_prob $dropout_rate \
                 --train_file data/wiki1m_for_simcse.txt \
-                --model_type bert \
-                --tokenizer_name bert-base-uncased \
+                --model_name_or_path bert-base-uncased \
                 --output_dir $output_dir \
                 --num_train_epochs 0 \
                 --per_device_train_batch_size $batch_size \
