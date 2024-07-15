@@ -529,7 +529,7 @@ def main():
         logger.info("Training new model from scratch")
         model = AutoModelForMaskedLM.from_config(config)
 
-    model.apply(model._init_weights)
+    #model.apply(model._init_weights)
 
     model.resize_token_embeddings(len(tokenizer))
 
