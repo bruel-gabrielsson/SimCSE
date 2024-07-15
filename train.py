@@ -524,7 +524,8 @@ def main():
             model = AutoModelForMaskedLM.from_config(config)
             #raise NotImplementedError
     else:
-        raise NotImplementedError
+        #raise NotImplementedError
+        print("TRAINING FROM SCRATCH2")
         logger.info("Training new model from scratch")
         model = AutoModelForMaskedLM.from_config(config)
 
