@@ -55,6 +55,7 @@ do
                 --hidden_dropout_prob $dropout_rate \
                 --train_file data/wiki1m_for_simcse.txt \
                 --model_type bert \
+                --tokenizer_name bert \
                 --output_dir $output_dir \
                 --num_train_epochs 0 \
                 --per_device_train_batch_size $batch_size \
